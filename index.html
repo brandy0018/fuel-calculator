@@ -179,6 +179,87 @@
 }
 </style>
 
+
+<style>
+/* iOS Safari input zoom + time-unit overlap fixes */
+.fuelrow input,
+.refinput input {
+  font-size: 16px !important; /* prevents Safari auto-zoom on focus */
+}
+
+/* Give time unit columns enough room so "hh:mm" never overlaps fuel input */
+@media (max-width: 640px) {
+  .fuelrow {
+    grid-template-columns:
+      minmax(76px, 1fr)
+      minmax(72px, 88px)
+      42px
+      minmax(82px, 1fr)
+      28px;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(66px, 1fr)
+      minmax(64px, 76px)
+      40px
+      minmax(72px, 1fr)
+      26px;
+  }
+
+  .fuelrow .unit {
+    white-space: nowrap;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 430px) {
+  .fuelrow {
+    grid-template-columns:
+      minmax(62px, 1fr)
+      minmax(60px, 72px)
+      40px
+      minmax(68px, 1fr)
+      24px;
+    gap: 3px;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(52px, 1fr)
+      minmax(52px, 62px)
+      38px
+      minmax(60px, 1fr)
+      22px;
+  }
+
+  .fuelrow input,
+  .refinput input {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .fuelrow {
+    grid-template-columns:
+      minmax(56px, .95fr)
+      minmax(56px, 66px)
+      38px
+      minmax(62px, 1fr)
+      22px;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(46px, .9fr)
+      minmax(48px, 58px)
+      36px
+      minmax(56px, 1fr)
+      20px;
+  }
+}
+</style>
+
 </head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">Offline prototype · kg / time</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
 <div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
