@@ -10,6 +10,175 @@
 #autoBtn .altn-status.disabled { opacity: .82; }
 </style>
 
+
+<style>
+/* iPhone / narrow-screen layout hardening */
+* { box-sizing: border-box; }
+
+.fuelrow,
+.refinput {
+  min-width: 0;
+}
+
+.fuelrow > *,
+.refinput > * {
+  min-width: 0;
+}
+
+.fuelrow input,
+.refinput input,
+.readonly,
+.info-time,
+.calc {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.fuelrow input,
+.refinput input {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.unit {
+  white-space: nowrap;
+  overflow: visible;
+  text-align: left;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    width: 100%;
+    max-width: none;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .fuelrow {
+    grid-template-columns:
+      minmax(76px, 1fr)
+      minmax(72px, 88px)
+      34px
+      minmax(82px, 1fr)
+      28px;
+    gap: 5px;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(66px, 1fr)
+      minmax(64px, 76px)
+      30px
+      minmax(72px, 1fr)
+      26px;
+    gap: 4px;
+  }
+
+  .fuelrow input,
+  .readonly,
+  .info-time,
+  .calc {
+    font-size: 15px;
+    padding: 9px 7px;
+  }
+
+  .unit {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 430px) {
+  .wrap {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .card {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .fuelrow {
+    grid-template-columns:
+      minmax(64px, 1fr)
+      minmax(62px, 74px)
+      28px
+      minmax(70px, 1fr)
+      24px;
+    gap: 3px;
+  }
+
+  .remaining-grid {
+    margin-left: 2%;
+    width: 98%;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(54px, 1fr)
+      minmax(54px, 64px)
+      26px
+      minmax(62px, 1fr)
+      22px;
+    gap: 3px;
+  }
+
+  .fuelrow label {
+    font-size: 13px;
+  }
+
+  .fuelrow input,
+  .readonly,
+  .info-time,
+  .calc {
+    font-size: 14px;
+    padding: 8px 6px;
+  }
+
+  .unit {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 380px) {
+  .fuelrow {
+    grid-template-columns:
+      minmax(58px, .95fr)
+      minmax(58px, 68px)
+      26px
+      minmax(64px, 1fr)
+      22px;
+  }
+
+  .remaining-grid .fuelrow {
+    grid-template-columns:
+      minmax(48px, .9fr)
+      minmax(50px, 60px)
+      24px
+      minmax(58px, 1fr)
+      20px;
+  }
+
+  .fuelrow label {
+    font-size: 12px;
+  }
+
+  .unit {
+    font-size: 10px;
+  }
+}
+</style>
+
 </head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">Offline prototype · kg / time</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
 <div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
