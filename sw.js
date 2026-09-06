@@ -1,4 +1,4 @@
-const CACHE_NAME='fuelcalc-github-responsive-v2';
+const CACHE_NAME='fuelcalc-v1.8.0';
 const APP_SHELL=['./','./index.html','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
