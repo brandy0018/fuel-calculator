@@ -311,7 +311,98 @@
 @media(max-width:430px){.massperf-row{grid-template-columns:minmax(0,1fr) 96px 28px 18px}.massperf-balance-row{grid-template-columns:minmax(0,1fr) 96px 28px 18px}.massperf-row .mp-label{font-size:12px}.massperf-balance-label{font-size:12px}.massperf-row .mp-value{min-width:0}.massperf-balance-value{min-width:0}}
 </style>
 
-</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Version 1.15.3 · Prototype · Last update: 10.09.2026</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
+
+<style>
+.block-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.block-title-row h2{margin-bottom:12px}
+.override-btn{font-size:11px;padding:5px 8px;white-space:nowrap;margin-bottom:8px}
+.override-btn.override-on{background:#65591f;border-color:#9b8730;color:#fff6bf}
+.override-locked{
+  background:#262c31 !important;
+  border-color:#414950 !important;
+  color:#d3d8dc !important;
+  cursor:not-allowed;
+  -webkit-text-fill-color:#d3d8dc;
+  opacity:1;
+}
+.block-fuel-input{
+  width:100%;
+  text-align:right;
+  font-family:inherit;
+  line-height:normal;
+}
+.block-fuel-input[readonly]{cursor:default}
+
+.manual-rf-row[hidden],.ovrd-cont-row[hidden]{display:none!important}
+
+
+
+.block-fuel-input,
+.manual-rf-input,
+
+
+.manual-rf-input{
+  width:100%;
+  background:#fff0a8;
+  border:1px solid #cfba58;
+  border-radius:10px;
+  color:#2b260f;
+  -webkit-text-fill-color:#2b260f;
+  padding:10px;
+  text-align:right;
+  font-size:16px;
+}
+.block-fuel-input.override-edit{
+  background:#fff0a8 !important;
+  border:1px solid #cfba58 !important;
+  color:#2b260f !important;
+  -webkit-text-fill-color:#2b260f;
+  outline:none;
+}
+.block-subvalues.override-strike .rf-label,
+.block-subvalues.override-strike .rf-value,
+.block-subvalues.override-strike .rf-unit{
+  text-decoration:line-through;
+  opacity:.58;
+}
+#autoBtn.override-disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+</style>
+
+
+<style>
+.ovrd-cont-value{
+  width:100% !important;
+  max-width:100% !important;
+  box-sizing:border-box;
+  background:#262c31 !important;
+  border:1px solid #414950 !important;
+  border-radius:10px;
+  color:#d3d8dc !important;
+  -webkit-text-fill-color:#d3d8dc !important;
+  padding:10px 8px;
+  text-align:right;
+  font-size:16px !important;
+  font-family:inherit;
+  cursor:not-allowed;
+  opacity:1 !important;
+}
+.ovrd-cont-value:focus{outline:none}
+</style>
+
+
+<style>
+#manualRf.manual-rf-input{
+  background:#fff0a8 !important;
+  border-color:#cfba58 !important;
+  color:#2b260f !important;
+  -webkit-text-fill-color:#2b260f !important;
+}
+</style>
+
+</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Version 1.18.4 · Prototype · Last update: 11.09.2026</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
 <div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Estimating Zero Fuel Weight (EZFW)</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Restricting Take Off Weight (RTOW)</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW (Max. Zero Fuel Weight)</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>Maximum Take Off Weight (MTOW)</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
@@ -331,18 +422,28 @@
 <div id="selectedNoAltn">RF = FR + G/A + 0.0 min</div>
 <div id="selectedAltn">RF = FR + ALTN + 0.0 min</div>
 </div></div>
-<div class="card"><h2>TRIP & ADDITIONS</h2>
+<div class="card" id="tripAddCard"><h2>TRIP & ADDITIONS</h2>
 <div class="fuelrow single"><label>Taxi</label><div></div><span class="unit"></span><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Trip</label><div class="info-time" id="tripTimeRead">00:00</div><span class="unit">hh:mm</span><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Contingency</label><div class="info-time" id="contTimeRead">≈ 0</div><span class="unit">min</span><input id="contFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>HighSpeed</label><div class="info-time" id="hsTime">≈ 0.0</div><span class="unit">min</span><input id="hsFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Extra</label><input id="extraTime" inputmode="decimal" placeholder="0"><span class="unit">min</span><input id="extraFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow sum"><label>Total</label><span></span><span></span><div class="calc big" id="total">0</div><span class="unit">kg</span></div></div>
-<div class="card"><h2>BLOCK</h2>
+<div class="card" id="blockCard"><div class="block-title-row"><h2>BLOCK</h2><button class="btn override-btn" id="overrideBtn" type="button">Override OFF</button></div>
 <div class="fuelrow single"><div class="weight-line"><label>Weight Correction</label><span class="weight-delta" id="weightDelta">(Δ 0)</span></div><div></div><span></span><div class="calc" id="weight">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>APU</label><div class="info-time" id="apuTimeRead">00:00</div><span class="unit">hh:mm</span><input id="apuFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
-<div class="fuelrow sum block-fuel-row"><label>Block Fuel</label><span></span><span></span><div class="calc big block-fuel-value block-neutral" id="block">0</div><span class="unit">kg</span></div>
-<div class="block-subvalues">
+<div class="fuelrow sum block-fuel-row"><label>Block Fuel</label><span></span><span></span><input class="calc big block-fuel-value block-neutral block-fuel-input" id="block" inputmode="decimal" value="0" readonly><span class="unit">kg</span></div>
+<div class="fuelrow manual-rf-row" id="manualRfRow" hidden>
+  <label>OVRD RF</label><span></span><span></span>
+  <input class="calc manual-rf-input" id="manualRf" inputmode="decimal" value="">
+  <span class="unit">kg</span>
+</div>
+<div class="fuelrow ovrd-cont-row" id="ovrdContRow" hidden>
+  <label>OVRD Contingency</label><span></span><span></span>
+  <input class="ovrd-cont-value" id="ovrdCont" type="text" value="0" readonly tabindex="-1" aria-readonly="true">
+  <span class="unit">kg</span>
+</div>
+<div class="block-subvalues" id="blockSubvalues">
   <div><span class="rf-label">RF @ T/O:</span><span class="rf-value" id="blockDepartureRem">0</span><span class="rf-unit">kg</span></div>
   <div><span class="rf-label">RF @ DEST:</span><span class="rf-value" id="blockSelectedRem">0</span><span class="rf-unit">kg</span></div>
 </div>
@@ -372,7 +473,7 @@
   </div>
 </div>
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
-const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false;
+const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0;
 function formatNumericInput(el){
   const raw=cleanNum(el.value);
   if(raw===''){el.value='';return;}
@@ -415,8 +516,85 @@ function validateReferenceLimit(inputId,limit,limitFieldId){
   calc();
 }
 function calc(){let f=num('finalFuel'),flow=f/30,ga=num('gaTime'),ha=num('holdATime'),gaF=ga*flow,haF=ha*flow,ra=f+gaF+haF,raT=30+ga+ha,alt=num('altFuel');$('gaFuel').textContent=fmt(gaF);$('holdAFuel').textContent=fmt(haF);$('remA').textContent=fmt(ra);$('remATime').textContent=Math.round(raT);$('finalCopy').textContent=fmt(f);$('finalCopyA').textContent=fmt(f);$('altFuelCopy').textContent=fmt(alt);let altT=f?(alt/f*30):0;$('altTime').textContent=Math.round(altT);let hbF,hbT;if(holdBMode==='auto'){hbF=Math.max(0,ra-f-alt);hbT=flow?hbF/flow:0;$('holdBFuel').value=hbF?Math.round(hbF):'';$('holdBTime').value=hbT?Math.round(hbT):''}else{hbT=num('holdBTime');hbF=hbT*flow;$('holdBFuel').value=hbF?Math.round(hbF):''}let rb=f+alt+hbF,rbT=30+altT+hbT;$('remB').textContent=fmt(rb);$('remBTime').textContent=Math.round(rbT);let useB=rb>ra,rem=useB?rb:ra,remT=useB?rbT:raT;$('remaining').textContent=fmt(rem);$('remainingTime').textContent=Math.round(remT);let selectedLabel=useB?'Option with ALTN selected':'Option no ALTN selected';$('selectedPath').textContent=selectedLabel;let eqNoAltnMin=f>0?Math.max(0,(rem-f-gaF)/(f/30)):0;let eqAltnMin=f>0?Math.max(0,(rem-f-alt)/(f/30)):0;$('selectedNoAltn').textContent='RF = FR + G/A + '+Math.round(eqNoAltnMin)+' min';$('selectedAltn').textContent='RF = FR + ALTN + '+Math.round(eqAltnMin)+' min';$('aCard').classList.toggle('remf-selected',!useB);$('bCard').classList.toggle('remf-selected',useB);
-let trip=num('tripFuel'),tm=mins($('tripTime').value),cont=num('contFuel'),extra=num('extraFuel'),hs=num('hsFuel');$('tripTimeRead').textContent=$('tripTime').value||'00:00';let tripRate=tm?trip/tm:0;$('contTimeRead').textContent=tripRate&&cont?'≈ '+Math.round(cont/tripRate):'≈ 0';$('hsTime').textContent='≈ '+(hs/110).toFixed(1);let total=rem+num('taxi')+trip+cont+hs+extra;$('total').textContent=fmt(total);let mb=num('minBlock'),wc=Math.max(0,((total-mb)/1000)*280);$('weight').textContent=fmt(wc);let apu=num('apuFuel');$('apuTimeRead').textContent=apu?hhmm(apu/4):'00:00';let block=total+wc+apu;$('block').textContent=fmt(block);let aboveMin=mb?block-mb:0;$('weightDelta').textContent='(Δ '+fmt(aboveMin)+' kg)';let ezfw=num('ezfw'),mtow=351534,rtowInput=num('rtow'),rtowCalc=rtowInput>0?Math.min(rtowInput,mtow):mtow,lzfw=Math.min(rtowCalc-block,239950),etow=ezfw+block-num('taxi');$('ezfwPerf').textContent=fmt(ezfw);$('lzfw').textContent=fmt(lzfw);$('rtowCalc').textContent=fmt(rtowCalc);$('etow').textContent=fmt(etow);let zfwBalance=lzfw-ezfw,zfwRow=$('zfwBalanceRow');$('zfwBalanceValue').textContent=fmt(Math.abs(zfwBalance));zfwRow.classList.remove('massperf-balance-underload','massperf-balance-overload');if(zfwBalance>=0){zfwRow.classList.add('massperf-balance-underload');$('zfwBalanceLabel').textContent='ZFW Underload';$('zfwBalanceMark').textContent='✓';$('zfwBalanceMark').className='massperf-balance-check check-ok'}else{zfwRow.classList.add('massperf-balance-overload');$('zfwBalanceLabel').textContent='ZFW OVERLOAD';$('zfwBalanceMark').textContent='✕';$('zfwBalanceMark').className='massperf-balance-check check-bad'}let towBalance=rtowCalc-etow,towRow=$('towBalanceRow');$('towBalanceValue').textContent=fmt(Math.abs(towBalance));towRow.classList.remove('massperf-balance-underload','massperf-balance-overload');if(towBalance>=0){towRow.classList.add('massperf-balance-underload');$('towBalanceLabel').textContent='TOW Underweight';$('towBalanceMark').textContent='✓';$('towBalanceMark').className='massperf-balance-check check-ok'}else{towRow.classList.add('massperf-balance-overload');$('towBalanceLabel').textContent='TOW OVERWEIGHT';$('towBalanceMark').textContent='✕';$('towBalanceMark').className='massperf-balance-check check-bad'}$('massPerfCard').classList.toggle('massperf-warning',ezfw>239950||etow>mtow);let c=$('check');$('block').classList.remove('block-ok','block-low','block-neutral');if(block>154229){$('block').classList.add('block-low');c.className='status warning';c.textContent='⚠ ABOVE MAX TANK CAPACITY · '+fmt(block-154229)+' kg fuel overload'}else if(!mb){$('block').classList.add('block-neutral');c.className='status';c.textContent=''}else if(block<mb){$('block').classList.add('block-low');c.className='status warning';c.textContent='⚠ BELOW MINIMUM BLOCK · '+fmt(mb-block)+' kg short'}else{$('block').classList.add('block-ok');c.className='status ok';c.textContent='✓ Minimum Block satisfied ('+fmt(block-mb)+' kg above Minimum)'}window.remainingFuelAtTakeOff=rem+cont+hs+extra;$('blockSelectedRem').textContent=fmt(rem);$('blockDepartureRem').textContent=fmt(window.remainingFuelAtTakeOff);}
+let trip=num('tripFuel'),tm=mins($('tripTime').value),cont=num('contFuel'),extra=num('extraFuel'),hs=num('hsFuel');$('tripTimeRead').textContent=$('tripTime').value||'00:00';let tripRate=tm?trip/tm:0;$('contTimeRead').textContent=tripRate&&cont?'≈ '+Math.round(cont/tripRate):'≈ 0';$('hsTime').textContent='≈ '+(hs/110).toFixed(1);let total=rem+num('taxi')+trip+cont+hs+extra;$('total').textContent=fmt(total);let mb=num('minBlock'),wc=Math.max(0,((total-mb)/1000)*280);$('weight').textContent=fmt(wc);let apu=num('apuFuel');$('apuTimeRead').textContent=apu?hhmm(apu/4):'00:00';calculatedBlock=total+wc+apu;let block=overrideMode?num('block'):calculatedBlock;if(!overrideMode)$('block').value=fmt(block);
+let ovrdCont=0;
+if(overrideMode && String($('manualRf').value||'').trim()!==''){
+  ovrdCont=block-num('manualRf')-trip-num('taxi');
+}
+$('ovrdCont').value=fmt(ovrdCont);
+let aboveMin=mb?block-mb:0;$('weightDelta').textContent='(Δ '+fmt(aboveMin)+' kg)';let ezfw=num('ezfw'),mtow=351534,rtowInput=num('rtow'),rtowCalc=rtowInput>0?Math.min(rtowInput,mtow):mtow,lzfw=Math.min(rtowCalc-block,239950),etow=ezfw+block-num('taxi');$('ezfwPerf').textContent=fmt(ezfw);$('lzfw').textContent=fmt(lzfw);$('rtowCalc').textContent=fmt(rtowCalc);$('etow').textContent=fmt(etow);let zfwBalance=lzfw-ezfw,zfwRow=$('zfwBalanceRow');$('zfwBalanceValue').textContent=fmt(Math.abs(zfwBalance));zfwRow.classList.remove('massperf-balance-underload','massperf-balance-overload');if(zfwBalance>=0){zfwRow.classList.add('massperf-balance-underload');$('zfwBalanceLabel').textContent='ZFW Underload';$('zfwBalanceMark').textContent='✓';$('zfwBalanceMark').className='massperf-balance-check check-ok'}else{zfwRow.classList.add('massperf-balance-overload');$('zfwBalanceLabel').textContent='ZFW OVERLOAD';$('zfwBalanceMark').textContent='✕';$('zfwBalanceMark').className='massperf-balance-check check-bad'}let towBalance=rtowCalc-etow,towRow=$('towBalanceRow');$('towBalanceValue').textContent=fmt(Math.abs(towBalance));towRow.classList.remove('massperf-balance-underload','massperf-balance-overload');if(towBalance>=0){towRow.classList.add('massperf-balance-underload');$('towBalanceLabel').textContent='TOW Underweight';$('towBalanceMark').textContent='✓';$('towBalanceMark').className='massperf-balance-check check-ok'}else{towRow.classList.add('massperf-balance-overload');$('towBalanceLabel').textContent='TOW OVERWEIGHT';$('towBalanceMark').textContent='✕';$('towBalanceMark').className='massperf-balance-check check-bad'}$('massPerfCard').classList.toggle('massperf-warning',ezfw>239950||etow>mtow);let c=$('check');$('block').classList.remove('block-ok','block-low','block-neutral');if(block>154229){$('block').classList.add('block-low');c.className='status warning';c.textContent='⚠ ABOVE MAX TANK CAPACITY · '+fmt(block-154229)+' kg fuel overload'}else if(!mb){$('block').classList.add('block-neutral');c.className='status';c.textContent=''}else if(block<mb){$('block').classList.add('block-low');c.className='status warning';c.textContent='⚠ BELOW MINIMUM BLOCK · '+fmt(mb-block)+' kg short'}else{$('block').classList.add('block-ok');c.className='status ok';c.textContent='✓ Minimum Block satisfied ('+fmt(block-mb)+' kg above Minimum)'}if(overrideMode && String($('manualRf').value||'').trim()!==''){
+  window.remainingFuelAtTakeOff=block-num('taxi')-trip;
+  $('blockDepartureRem').textContent=fmt(window.remainingFuelAtTakeOff);
+  $('blockSelectedRem').textContent=fmt(num('manualRf'));
+}else{
+  window.remainingFuelAtTakeOff=rem+cont+hs+extra;
+  $('blockSelectedRem').textContent=fmt(rem);
+  $('blockDepartureRem').textContent=fmt(window.remainingFuelAtTakeOff);
+}
+applyOverrideVisuals();}
+
+const overrideInputIds=['gaTime','holdATime','holdBTime','holdBFuel','taxi','tripFuel','contFuel','hsFuel','extraTime','extraFuel','apuFuel'];
+
+function applyOverrideVisuals(){
+  overrideInputIds.forEach(id=>{
+    const el=$(id);
+    if(!el)return;
+    el.classList.toggle('override-locked',overrideMode);
+  });
+
+  $('block').classList.toggle('override-edit',overrideMode);
+  $('block').readOnly=!overrideMode;
+  $('manualRfRow').hidden=!overrideMode;$('ovrdContRow').hidden=!overrideMode;
+  const manualRfEntered=overrideMode && String($('manualRf').value||'').trim()!=='';
+  $('blockSubvalues')?.classList.toggle('override-strike',overrideMode && !manualRfEntered);
+
+  $('overrideBtn').textContent=overrideMode?'Override ON':'Override OFF';
+  $('overrideBtn').classList.toggle('override-on',overrideMode);
+
+  if($('autoBtn')){
+    $('autoBtn').disabled=overrideMode;
+    $('autoBtn').classList.toggle('override-disabled',overrideMode);
+  }
+}
+
+function setOverrideMode(on){
+  if(on===overrideMode)return;
+  overrideMode=on;
+
+  if(overrideMode){
+    $('block').value=fmt(calculatedBlock);
+    $('manualRf').value='';
+    overrideInputIds.forEach(id=>{
+      const el=$(id);
+      if(el)el.readOnly=true;
+    });
+  }else{
+    $('manualRf').value='';
+    overrideInputIds.forEach(id=>{
+      const el=$(id);
+      if(!el)return;
+      if(id==='holdBFuel'){
+        el.readOnly=true;
+      }else if(id==='holdBTime'){
+        el.readOnly=holdBMode!=='manual';
+      }else{
+        el.readOnly=false;
+      }
+    });
+    applyHoldBMode();
+  }
+
+  applyOverrideVisuals();
+  calc();
+}
+
 function pair(fuelId,timeId,rateFromTrip=false,fixedRate=0){$(fuelId).addEventListener('input',()=>{if(syncing)return;let rate=rateFromTrip?(mins($('tripTime').value)?num('tripFuel')/mins($('tripTime').value):0):fixedRate;syncing=true;$(timeId).value=rate&&num(fuelId)?hhmm(num(fuelId)/rate):'';syncing=false;calc()});$(timeId).addEventListener('input',()=>{if(syncing)return;let rate=rateFromTrip?(mins($('tripTime').value)?num('tripFuel')/mins($('tripTime').value):0):fixedRate;syncing=true;$(fuelId).value=rate&&mins($(timeId).value)?Math.round(mins($(timeId).value)*rate):'';syncing=false;calc()})}
 ['minBlock','finalFuel','gaTime','holdATime','altFuel','taxi','tripFuel','tripTime','hsFuel','ezfw','rtow','contFuel','extraFuel','extraTime','apuFuel'].forEach(id=>$(id)?.addEventListener('input',calc));
-['finalFuel','altFuel','taxi','tripFuel','hsFuel','contFuel','extraFuel','apuFuel'].forEach(id=>$(id)?.addEventListener('blur',()=>{formatNumericInput($(id));calc()}));$('minBlock').addEventListener('blur',()=>{if(num('minBlock')>154229){$('minBlock').value=fmt(154229);flashLimit('minBlock');calc()}else{formatNumericInput($('minBlock'));calc()}});$('ezfw').addEventListener('blur',()=>validateReferenceLimit('ezfw',239950,'mzfwLimit'));$('rtow').addEventListener('blur',()=>validateReferenceLimit('rtow',351534,'mtowLimit'));$('tripTime').addEventListener('blur',()=>{let v=formatTripTimeInput($('tripTime').value);$('tripTime').value=v;calc()});$('holdBTime').addEventListener('input',()=>{if(!syncing&&holdBMode==='manual'){calc()}});$('autoBtn').onclick=()=>{holdBMode=holdBMode==='auto'?'manual':'auto';applyHoldBMode();calc()};$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('holdBTime').readOnly=!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual);$('holdBTime').classList.toggle('computed-input',!manual);$('holdBFuel').classList.add('computed-input');$('autoBtn').innerHTML=manual?'ALTN Option <span class="altn-status enabled">ENABLED</span>':'ALTN Option <span class="altn-status disabled">DISABLED</span>'}function resetAll(){document.querySelectorAll('input').forEach(x=>x.value='');holdBMode='auto';applyHoldBMode();calc()}if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');applyHoldBMode();calc();
+['finalFuel','altFuel','taxi','tripFuel','hsFuel','contFuel','extraFuel','apuFuel'].forEach(id=>$(id)?.addEventListener('blur',()=>{formatNumericInput($(id));calc()}));$('minBlock').addEventListener('blur',()=>{if(num('minBlock')>154229){$('minBlock').value=fmt(154229);flashLimit('minBlock');calc()}else{formatNumericInput($('minBlock'));calc()}});$('ezfw').addEventListener('blur',()=>validateReferenceLimit('ezfw',239950,'mzfwLimit'));$('rtow').addEventListener('blur',()=>validateReferenceLimit('rtow',351534,'mtowLimit'));$('tripTime').addEventListener('blur',()=>{let v=formatTripTimeInput($('tripTime').value);$('tripTime').value=v;calc()});$('holdBTime').addEventListener('input',()=>{if(!syncing&&holdBMode==='manual'){calc()}});$('autoBtn').onclick=()=>{if(overrideMode)return;holdBMode=holdBMode==='auto'?'manual':'auto';applyHoldBMode();calc()};$('overrideBtn').onclick=()=>setOverrideMode(!overrideMode);
+$('block').addEventListener('input',()=>{if(overrideMode)calc()});
+$('block').addEventListener('blur',()=>{if(overrideMode){formatNumericInput($('block'));calc()}});
+$('manualRf').addEventListener('input',()=>{if(overrideMode)calc()});
+$('manualRf').addEventListener('blur',()=>{if(overrideMode && String($('manualRf').value||'').trim()!==''){formatNumericInput($('manualRf'));calc()}});
+
+$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('holdBTime').readOnly=overrideMode?true:!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual&&!overrideMode);$('holdBTime').classList.toggle('computed-input',!manual||overrideMode);$('holdBFuel').classList.add('computed-input');$('autoBtn').innerHTML=manual?'ALTN Option <span class="altn-status enabled">ENABLED</span>':'ALTN Option <span class="altn-status disabled">DISABLED</span>';applyOverrideVisuals()}function resetAll(){overrideMode=false;document.querySelectorAll('input').forEach(x=>x.value='');holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc()}if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');applyHoldBMode();applyOverrideVisuals();calc();
 </script></body></html>
