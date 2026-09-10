@@ -260,7 +260,8 @@
 }
 </style>
 
-<style>.app-meta{font-size:11px;margin-top:2px;opacity:.72}</style>
+<style>.app-meta{font-size:11px;margin-top:2px;opacity:.72}
+</style>
 <style>
 .block-subvalues{font-size:11px;line-height:1.45;margin-top:5px;text-align:right;color:var(--muted,#9aa4ad)}
 .block-subvalues strong{color:#dfe5ea;font-weight:650}
@@ -310,7 +311,7 @@
 @media(max-width:430px){.massperf-row{grid-template-columns:minmax(0,1fr) 96px 28px 18px}.massperf-balance-row{grid-template-columns:minmax(0,1fr) 96px 28px 18px}.massperf-row .mp-label{font-size:12px}.massperf-balance-label{font-size:12px}.massperf-row .mp-value{min-width:0}.massperf-balance-value{min-width:0}}
 </style>
 
-</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">Prototype © BTEP - FO B777</div><div class="muted app-meta">Version 1.15.1 · Last update: 10.09.2026</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
+</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Version 1.15.3 · Prototype · Last update: 10.09.2026</div></div><button class="btn" onclick="resetAll()">Reset</button></div>
 <div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Estimating Zero Fuel Weight (EZFW)</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Restricting Take Off Weight (RTOW)</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW (Max. Zero Fuel Weight)</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>Maximum Take Off Weight (MTOW)</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
