@@ -603,7 +603,7 @@
 
 </style>
 
-</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.25.1 · Last update: 12.09.2026</div></div><div class="top-actions">
+</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.25.2 · Last update: 12.09.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -612,7 +612,7 @@
   <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
   <button class="btn" type="button" onclick="resetAll()">Reset</button>
 </div></div>
-<div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Estimating Zero Fuel Weight (EZFW)</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Restricting Take Off Weight (RTOW)</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW (Max. Zero Fuel Weight)</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>Maximum Take Off Weight (MTOW)</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
+<div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>EZFW</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>MTOW</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
 <div class="fuelrow"><label>FR</label><div class="readonly">30</div><span class="unit">min</span><div class="readonly" id="finalCopyA">0</div><span class="unit">kg</span></div>
@@ -687,7 +687,7 @@
 </div>
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
 const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;
-const APP_VERSION='1.25.1';
+const APP_VERSION='1.25.2';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
