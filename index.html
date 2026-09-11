@@ -584,9 +584,34 @@
   opacity:.72;
 }
 
+
+.rel-control{display:flex;align-items:center;gap:4px}
+.rel-btn{min-width:30px;padding-left:8px !important;padding-right:8px !important}
+.rel-input{
+  width:58px !important;
+  min-width:58px !important;
+  max-width:58px !important;
+  text-align:center;
+  background:#d9dde1 !important;
+  border:1px solid #b8c0c7 !important;
+  color:#111 !important;
+  -webkit-text-fill-color:#111 !important;
+  border-radius:6px;
+  padding:7px 4px !important;
+  font-size:14px !important;
+}
+
 </style>
 
-</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.24.2 · Last update: 12.09.2026</div></div><div class="top-actions"><button class="btn" type="button" onclick="loadTestValues()">TEST</button><button class="btn" type="button" onclick="resetAll()">Reset</button></div></div>
+</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.25.1 · Last update: 12.09.2026</div></div><div class="top-actions">
+  <div class="rel-control">
+    <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
+    <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
+    <button class="btn rel-btn" type="button" onclick="changeRel(1)">&gt;</button>
+  </div>
+  <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
+  <button class="btn" type="button" onclick="resetAll()">Reset</button>
+</div></div>
 <div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Estimating Zero Fuel Weight (EZFW)</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Restricting Take Off Weight (RTOW)</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW (Max. Zero Fuel Weight)</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>Maximum Take Off Weight (MTOW)</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
@@ -662,13 +687,13 @@
 </div>
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
 const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;
-const APP_VERSION='1.24.2';
+const APP_VERSION='1.25.1';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
   'taxi','tripFuel','contFuel','hsFuel','extraTime','extraFuel','apuFuel',
-  'block','manualRt','manualRf','ovrdAddTime','ovrdCont'
+  'block','manualRt','manualRf','ovrdAddTime','ovrdCont','relValue'
 ];
 
 function saveState(){
@@ -897,7 +922,14 @@ $('manualRf').addEventListener('blur',()=>{
   }
 });
 
-$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('holdBTime').readOnly=overrideMode?true:!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual&&!overrideMode);$('holdBTime').classList.toggle('computed-input',!manual||overrideMode);$('holdBFuel').classList.add('computed-input');$('autoBtn').innerHTML=manual?'ALTN Option <span class="altn-status enabled">ENABLED</span>':'ALTN Option <span class="altn-status disabled">DISABLED</span>';applyOverrideVisuals()}function loadTestValues(){
+$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('holdBTime').readOnly=overrideMode?true:!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual&&!overrideMode);$('holdBTime').classList.toggle('computed-input',!manual||overrideMode);$('holdBFuel').classList.add('computed-input');$('autoBtn').innerHTML=manual?'ALTN Option <span class="altn-status enabled">ENABLED</span>':'ALTN Option <span class="altn-status disabled">DISABLED</span>';applyOverrideVisuals()}function changeRel(delta){
+  const el=$('relValue');
+  const current=Math.max(1,parseInt(String(el.value||'').replace(/\D/g,''),10)||1);
+  const next=Math.max(1,current+delta);
+  el.value='RLS '+next;
+  saveState();
+}
+function loadTestValues(){
   overrideMode=false;
   ovrdRfSource=null;
   ovrdAddSource=null;
@@ -929,7 +961,8 @@ $('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tr
   calc();
   saveState();
 }
-function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;document.querySelectorAll('input').forEach(x=>x.value='');holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc()}
+function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;document.querySelectorAll('input').forEach(x=>x.value='');
+  $('relValue').value='RLS 1';holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc()}
 $('ovrdAddTime').addEventListener('input',()=>{
   if(!overrideMode || syncing)return;
   ovrdAddSource='time';
