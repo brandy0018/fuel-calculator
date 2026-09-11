@@ -1,4 +1,4 @@
-const CACHE_NAME='fuelcalc-v1.21.2';
+const CACHE_NAME='fuelcalc-v1.24.2';
 const APP_SHELL=['./','./index.html','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
