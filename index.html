@@ -646,12 +646,29 @@
 #overviewCard:has(#overviewCollapseBtn[aria-expanded="true"]){background:#25323c;border-color:#586b7a}
 
 
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.28.38 · Last update: 21.10.2026</div></div><div class="top-actions">
+
+/* OFP import prototype */
+.ref-ocr-new{background:#d4e9da!important;border-color:#58966b!important;color:#162b1e!important}
+.ref-ocr-old{background:#f2d9d9!important;border-color:#c65b5b!important;color:#4a1818!important}
+.ofp-modal[hidden]{display:none!important}.ofp-modal{position:fixed;inset:0;background:#000c;z-index:200;overflow:auto;padding:14px;display:flex;align-items:flex-start;justify-content:center}
+.ofp-dialog{width:min(660px,100%);background:#171e24;border:1px solid #60707e;border-radius:14px;padding:18px;margin:16px auto}
+.ofp-dialog h2{margin:0 0 10px;font-size:20px}.ofp-dialog textarea{width:100%;min-height:130px;background:#0c1115;color:white;border:1px solid #536270;border-radius:8px;padding:9px;font:12px monospace}
+.ofp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.ofp-table{width:100%;border-collapse:collapse;margin:12px 0}.ofp-table td,.ofp-table th{border-bottom:1px solid #39444d;padding:8px 4px;text-align:left;font-size:13px}.ofp-table input{width:100%;min-width:80px;padding:7px;background:#d9dde1;color:#111;border:1px solid #8899a6;border-radius:6px}.ofp-table .missing{background:#f2d9d9;border-color:#c65b5b}.ofp-note{font-size:12px;color:#c0cbd3;line-height:1.5}#ofpViewer[hidden]{display:none!important}
+#ofpViewer{margin:12px 0;border:1px solid #536270;border-radius:10px;overflow:hidden;background:#10151a}
+.ofp-zoom-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:8px;background:#25303a}
+.ofp-zoom-toolbar button{min-width:38px;min-height:36px;border:1px solid #647889;background:#344451;color:#fff;border-radius:7px;font-size:17px;cursor:pointer}
+#ofpZoomLabel{min-width:54px;text-align:center;font-variant-numeric:tabular-nums;font-size:13px}
+#ofpStage{position:relative;height:min(52vh,450px);min-height:220px;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;background:#0c1115}
+#ofpStage.dragging{cursor:grabbing}
+#ofpPreview{position:absolute;display:block;max-width:none;max-height:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
+.ofp-zoom-hint{font-size:11px;color:#b9c8d2;padding:6px 9px}
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.2 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
     <button class="btn rel-btn" type="button" onclick="changeRel(1)">&gt;</button>
   </div>
+  <button class="btn" type="button" id="ofpOpenBtn" aria-label="OFP importieren" title="OFP importieren">📷 OFP</button>
   <button class="btn" type="button" id="expandAllBtn" aria-label="Alle Fenster einklappen">Collapse All</button>
   <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
   <button class="btn" type="button" onclick="resetAll()">Reset</button>
@@ -751,7 +768,24 @@
     </div>
   </div></div>
 </div>
-<div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
+<div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div>
+<div id="ofpModal" class="ofp-modal" hidden role="dialog" aria-modal="true" aria-label="OFP Import">
+ <div class="ofp-dialog"><h2>📷 OFP Import · Prototype</h2>
+ <p class="ofp-note">Foto auswählen oder aufnehmen. Die lokale Texterkennung ist nur verfügbar, wenn der Browser TextDetector unterstützt. Auf iPhone Safari ist dafür noch eine separat einzubindende Offline-OCR-Engine nötig. Alternativ erkannten OFP-Text einfügen oder die Demo testen. Keine Daten werden hochgeladen.</p>
+ <input id="ofpFile" type="file" accept="image/*" capture="environment" aria-label="OFP Foto auswählen"><div id="ofpViewer" hidden>
+  <div class="ofp-zoom-toolbar"><button type="button" id="ofpZoomOut" aria-label="Verkleinern">−</button><span id="ofpZoomLabel">100%</span><button type="button" id="ofpZoomIn" aria-label="Vergrößern">+</button><button type="button" id="ofpZoomReset">Einpassen</button></div>
+  <div id="ofpStage" aria-label="OFP Bild: mit einem Finger verschieben, mit zwei Fingern zoomen"><img id="ofpPreview" alt="Ausgewähltes OFP" draggable="false"></div>
+  <div class="ofp-zoom-hint">iPhone: Zwei Finger zum Zoomen, ein Finger zum Verschieben · PC: Mausrad und Ziehen · Doppeltippen zum Vergrößern</div>
+ </div>
+ <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
+ <label for="ofpText" class="ofp-note">OFP-Text (optional einfügen)</label><textarea id="ofpText" spellcheck="false" placeholder="OFP Text einfügen …"></textarea>
+ <div class="ofp-actions"><button type="button" class="btn" id="ofpParse">Text auswerten</button><button type="button" class="btn" id="ofpDemo">Demo LX176</button></div>
+ <div id="ofpReview" hidden><p class="ofp-note">Bitte jeden erkannten Wert mit dem OFP vergleichen. Rot = nicht erkannt; bisheriger Wert bleibt bestehen. RTOW wird nie übernommen.</p><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Erkannt / editierbar</th><th>Status</th></tr></thead><tbody id="ofpRows"></tbody></table>
+ <label class="ofp-note"><input type="checkbox" id="ofpConfirm"> Ich habe alle Werte mit dem OFP verglichen.</label>
+ <div class="ofp-actions"><button type="button" class="btn" id="ofpApply">Bestätigte Werte übernehmen</button></div></div>
+ <div class="ofp-actions"><button type="button" class="btn" id="ofpClose">Schließen</button></div>
+ </div></div>
+<script>
 const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>weightInputIds.has(id)?parseWeight($(id).value):parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;let savedNoAltnTimes=null;
 // Decimal weights in tonnes; grouped whole weights remain kilograms.
 const weightInputIds=new Set(['minBlock','finalFuel','altFuel','ezfw','rtow','taxi','tripFuel','contFuel','hsFuel','extraFuel','apuFuel','block','manualRf','ovrdCont']);
@@ -763,7 +797,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.28.38';
+const APP_VERSION='1.29.2';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1150,4 +1184,105 @@ document.addEventListener('click',e=>{
   sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,false));
   syncAllButton();
 })();
-</script></body></html>
+</script>
+<script>
+(function(){
+const fields=[['ezfw','EZFW'],['taxi','Taxi Fuel'],['tripFuel','Trip Fuel'],['minBlock','Minimum Block'],['tripTime','Trip Time'],['finalFuel','Final Reserve'],['altFuel','ALTN'],['relValue','RLS']];
+const $=id=>document.getElementById(id);
+const sample=`LX176 20Oct26Z ZRH/SIN RLS 6 / 20Oct26 19.06Z
+ZFW 225713 239950S
+TOF 110475
+TOW 336188 351534S
+TRIP 98701
+BASIC
+TAXI 525 .15
+TRIP 98701 11.52
+CONT20 2772 .20
+ALTN WMKK 4850 .38
+ADD
+EXTRA
+FINAL RES 3135 .30
+MIN BLOCK 109983 13.20
+DISCF 1017 .09
+BLOCK 111000 13.29`;
+function parse(text){
+ const t=text.toUpperCase().replace(/[’']/g,'').replace(/\r/g,'');
+ const lines=t.split('\n').map(x=>x.replace(/\s+/g,' ').trim());
+ const header=lines.find(x=>/\bRLS\s*\d+\b/.test(x))||'';
+ const basicStart=lines.findIndex(x=>/^BASIC\b/.test(x));
+ const basicEnd=lines.findIndex((x,i)=>i>basicStart && /^(?:FUEL COST|OPTIONAL DEST ALTN|NEXT LEG|CMD)\b/.test(x));
+ const basic=basicStart>=0?lines.slice(basicStart,basicEnd<0?lines.length:basicEnd):[];
+ const find=(list,pattern)=>list.find(x=>pattern.test(x))||'';
+ const number=(line,pattern)=>{const m=line.match(pattern);return m?m[1]:''};
+ const zfw=find(lines,/^ZFW\s+\d/);
+ const trip=find(basic,/^TRIP\s+\d/);
+ const altn=find(basic,/^ALTN\b/);
+ const tripMatch=trip.match(/^TRIP\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/);
+ return {
+ ezfw:number(zfw,/^ZFW\s+(\d{4,6})\b/),
+ taxi:number(find(basic,/^TAXI\s+\d/),/^TAXI\s+(\d{1,6})\b/),
+ tripFuel:tripMatch?.[1]||'',
+ tripTime:tripMatch?tripMatch[2].padStart(2,'0')+':'+tripMatch[3]:'',
+ minBlock:number(find(basic,/^MIN\s+BLOCK\s+\d/),/^MIN\s+BLOCK\s+(\d{2,6})\b/),
+ finalFuel:number(find(basic,/^FINAL\s+RES\s+\d/),/^FINAL\s+RES\s+(\d{2,6})\b/),
+ altFuel: /^ALTN\s+(?:NIL|NONE)\b/.test(altn)?'0':number(altn,/^ALTN(?:\s+[A-Z]{3,4})?\s+(\d{1,6})\b/),
+ relValue:number(header,/\bRLS\s*(\d+)\b/)
+ };
+}
+let detected={},objectUrl=null,selectionToken=0,reviewReady=false;
+function clearOFPResult(){detected={};reviewReady=false;$('ofpText').value='';$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
+const stage=$('ofpStage'),preview=$('ofpPreview');
+let fit=1,zoom=1,panX=0,panY=0,imgW=0,imgH=0,lastTap=0;
+const pointers=new Map();let gesture=null;
+function constrain(){const w=stage.clientWidth,h=stage.clientHeight,iw=imgW*zoom,ih=imgH*zoom;
+ panX=iw<=w?(w-iw)/2:Math.min(0,Math.max(w-iw,panX));
+ panY=ih<=h?(h-ih)/2:Math.min(0,Math.max(h-ih,panY));}
+function drawImage(){if(!imgW)return;constrain();preview.style.width=imgW+'px';preview.style.height=imgH+'px';preview.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;$('ofpZoomLabel').textContent=Math.round(zoom/fit*100)+'%';}
+function fitImage(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit;panX=panY=0;drawImage();}
+function zoomAt(factor,x=stage.clientWidth/2,y=stage.clientHeight/2){if(!imgW)return;const next=Math.max(fit,Math.min(fit*8,zoom*factor));const k=next/zoom;panX=x-(x-panX)*k;panY=y-(y-panY)*k;zoom=next;drawImage();}
+$('ofpZoomIn').onclick=()=>zoomAt(1.5);$('ofpZoomOut').onclick=()=>zoomAt(1/1.5);$('ofpZoomReset').onclick=fitImage;
+preview.onload=()=>{imgW=preview.naturalWidth;imgH=preview.naturalHeight;fitImage();};
+stage.addEventListener('wheel',e=>{if(!imgW)return;e.preventDefault();const r=stage.getBoundingClientRect();zoomAt(e.deltaY<0?1.2:1/1.2,e.clientX-r.left,e.clientY-r.top);},{passive:false});
+function point(e){const r=stage.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+stage.addEventListener('pointerdown',e=>{if(!imgW)return;e.preventDefault();stage.setPointerCapture(e.pointerId);pointers.set(e.pointerId,point(e));stage.classList.add('dragging');const ps=[...pointers.values()];if(ps.length===1){gesture={type:'pan',x:ps[0].x,y:ps[0].y,px:panX,py:panY,moved:false};}else if(ps.length===2){const mid={x:(ps[0].x+ps[1].x)/2,y:(ps[0].y+ps[1].y)/2};gesture={type:'pinch',dist:distance(ps[0],ps[1]),zoom,mid,px:panX,py:panY};}});
+stage.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId)||!gesture)return;e.preventDefault();pointers.set(e.pointerId,point(e));const ps=[...pointers.values()];if(ps.length===1&&gesture.type==='pan'){panX=gesture.px+ps[0].x-gesture.x;panY=gesture.py+ps[0].y-gesture.y;if(Math.abs(ps[0].x-gesture.x)+Math.abs(ps[0].y-gesture.y)>8)gesture.moved=true;drawImage();}else if(ps.length===2&&gesture.type==='pinch'){const mid={x:(ps[0].x+ps[1].x)/2,y:(ps[0].y+ps[1].y)/2};const next=Math.max(fit,Math.min(fit*8,gesture.zoom*distance(ps[0],ps[1])/Math.max(1,gesture.dist)));const k=next/gesture.zoom;panX=mid.x-(gesture.mid.x-gesture.px)*k;panY=mid.y-(gesture.mid.y-gesture.py)*k;zoom=next;drawImage();}});
+function release(e){if(!pointers.has(e.pointerId))return;const wasTap=pointers.size===1&&gesture?.type==='pan'&&!gesture.moved;const pos=point(e);pointers.delete(e.pointerId);if(!pointers.size){stage.classList.remove('dragging');gesture=null;if(wasTap){const now=Date.now();if(now-lastTap<330){zoomAt(zoom>fit*1.5?fit/zoom:2,pos.x,pos.y);lastTap=0;}else lastTap=now;}}else{const p=[...pointers.values()][0];gesture={type:'pan',x:p.x,y:p.y,px:panX,py:panY,moved:true};}}
+stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);
+window.addEventListener('resize',()=>{if(imgW&& !$('ofpViewer').hidden)fitImage();});
+function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=false;$('ofpRows').replaceChildren();
+ fields.forEach(([id,label])=>{const tr=document.createElement('tr'),td=document.createElement('td'),cell=document.createElement('td'),status=document.createElement('td'),input=document.createElement('input');
+ td.textContent=label;input.value=data[id]||'';input.dataset.id=id;input.className=data[id]?'':'missing';input.setAttribute('aria-label',label);input.addEventListener('input',()=>input.classList.toggle('missing',!input.value.trim()));cell.append(input);status.textContent=data[id]?'Erkannt':'Nicht erkannt';tr.append(td,cell,status);$('ofpRows').append(tr)});
+ $('ofpReview').hidden=false;$('ofpConfirm').checked=false;
+}
+$('ofpOpenBtn').onclick=()=>{$('ofpModal').hidden=false;$('ofpStatus').textContent='';};
+$('ofpText').addEventListener('input',clearReviewOnly);
+$('ofpClose').onclick=()=>{$('ofpModal').hidden=true;};
+$('ofpDemo').onclick=()=>{selectionToken++;clearOFPResult();$('ofpFile').value='';$('ofpViewer').hidden=true;if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}$('ofpText').value=sample;showReview(parse(sample));$('ofpStatus').textContent='Demo-Werte geladen (kein OCR-Lauf).';};
+$('ofpParse').onclick=()=>{clearReviewOnly();if(!$('ofpText').value.trim()){$('ofpStatus').textContent='Kein OFP-Text vorhanden. Bitte Text einfügen oder Foto mit unterstützter OCR auswählen.';return;}showReview(parse($('ofpText').value));$('ofpStatus').textContent='Text ausgewertet. Bitte alle Werte kontrollieren.';};
+function clearReviewOnly(){detected={};reviewReady=false;$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
+$('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;const token=++selectionToken;clearOFPResult();
+ if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);$('ofpViewer').hidden=false;imgW=imgH=0;preview.src=objectUrl;$('ofpReview').hidden=true;
+ if(typeof window.TextDetector!=='function'){$('ofpStatus').textContent='Neues OFP ausgewählt. Keine OCR verfügbar: Es wurden keine Werte erkannt oder übernommen. Der Demo-Datensatz LX176 wird nicht verwendet.';return;}
+ try{$('ofpStatus').textContent='Texterkennung läuft lokal …';const detector=new TextDetector();const bitmap=await createImageBitmap(file);const blocks=await detector.detect(bitmap);bitmap.close();if(token!==selectionToken)return;$('ofpText').value=blocks.map(b=>b.rawValue).join('\n');$('ofpStatus').textContent='Texterkennung abgeschlossen; bitte Ergebnis kontrollieren.';showReview(parse($('ofpText').value));}catch(err){if(token!==selectionToken)return;clearOFPResult();$('ofpStatus').textContent='Texterkennung fehlgeschlagen: '+String(err.message||err);}
+};
+$('ofpApply').onclick=()=>{if(!reviewReady){$('ofpStatus').textContent='Keine Ergebnisse des ausgewählten OFP vorhanden.';return;}if(!$('ofpConfirm').checked){$('ofpStatus').textContent='Bitte zuerst die Kontrolle bestätigen.';return;}
+ const rows=[...$('ofpRows').querySelectorAll('input')];
+ for(const input of rows){const id=input.dataset.id,raw=input.value.trim(),target=$(id);if(!target)continue;
+ target.classList.remove('ref-ocr-new','ref-ocr-old');
+ if(!raw){target.classList.add('ref-ocr-old');continue;}
+ if(id==='relValue'){if(!/^\d{1,3}$/.test(raw)){$('ofpStatus').textContent='Ungültige RLS-Nummer';return;}target.value='RLS '+Number(raw);continue;}
+ if(id==='tripTime'){if(!/^\d{1,2}:\d{2}$/.test(raw)||Number(raw.split(':')[1])>59){$('ofpStatus').textContent='Ungültige Trip Time';return;}}
+ else if(!/^\d{1,6}$/.test(raw)){$('ofpStatus').textContent='Ungültiger Wert: '+id;return;}
+ target.value=raw;target.classList.add('ref-ocr-new');
+ }
+ // RTOW intentionally untouched.
+ $('ofpModal').hidden=true;
+ const body=$('referenceBody'),btn=$('referenceCollapseBtn');body.hidden=false;btn.setAttribute('aria-expanded','true');btn.setAttribute('aria-label','REFERENCE einklappen');
+ if(typeof calc==='function')calc();if(typeof saveState==='function')saveState();
+ };
+ ['ezfw','taxi','tripFuel','minBlock','tripTime','finalFuel','altFuel'].forEach(id=>$(id).addEventListener('input',()=>$(id).classList.remove('ref-ocr-new','ref-ocr-old')));
+ window.OFPParser={parse};
+})();
+</script>
+</body></html>
