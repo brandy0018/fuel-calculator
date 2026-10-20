@@ -45,3 +45,6 @@ TRIP & ADDITIONS and BLOCK can be collapsed independently, like Remaining Fuel. 
 Version 1.28.37: Header-Schaltfläche Expand All / Collapse All für alle sechs Hauptfenster.
 
 - OVERVIEW erhält im ausgeklappten Zustand einen dezent hervorgehobenen Hintergrund und Rahmen.
+
+## Version 1.28.38 (21.10.2026)
+All six main panels start collapsed; Expand All opens them simultaneously.

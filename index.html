@@ -635,7 +635,7 @@
 .remf-collapse-btn:focus-visible{outline:2px solid #8cbad6;outline-offset:2px}
 .remf-chevron{display:block;transition:transform .18s ease;transform:rotate(0deg)}
 .remf-collapse-btn[aria-expanded="false"] .remf-chevron{transform:rotate(180deg)}
-#referenceBody[hidden],#remfGroupBody[hidden],#tripAddBody[hidden],#blockBody[hidden]{display:none!important}
+#referenceBody[hidden],#remfGroupBody[hidden],#tripAddBody[hidden],#blockBody[hidden],#overviewBody[hidden],#massPerfBody[hidden]{display:none!important}
 .remf-group-heading + #remfGroupBody{margin-top:12px}
 .section-collapse-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .section-collapse-heading h2{margin:0}
@@ -646,7 +646,7 @@
 #overviewCard:has(#overviewCollapseBtn[aria-expanded="true"]){background:#25323c;border-color:#586b7a}
 
 
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.28.37 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.28.38 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -763,7 +763,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.28.37';
+const APP_VERSION='1.28.38';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1146,6 +1146,8 @@ document.addEventListener('click',e=>{
     sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,!allExpanded));
     syncAllButton();
   });
+  // Start with every main section collapsed; individual controls remain independent.
+  sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,false));
   syncAllButton();
 })();
 </script></body></html>
