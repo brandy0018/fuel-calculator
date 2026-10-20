@@ -662,7 +662,7 @@
 #ofpStage.dragging{cursor:grabbing}
 #ofpPreview{position:absolute;display:block;max-width:none;max-height:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
 .ofp-zoom-hint{font-size:11px;color:#b9c8d2;padding:6px 9px}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.2 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.3 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -771,15 +771,15 @@
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div>
 <div id="ofpModal" class="ofp-modal" hidden role="dialog" aria-modal="true" aria-label="OFP Import">
  <div class="ofp-dialog"><h2>📷 OFP Import · Prototype</h2>
- <p class="ofp-note">Foto auswählen oder aufnehmen. Die lokale Texterkennung ist nur verfügbar, wenn der Browser TextDetector unterstützt. Auf iPhone Safari ist dafür noch eine separat einzubindende Offline-OCR-Engine nötig. Alternativ erkannten OFP-Text einfügen oder die Demo testen. Keine Daten werden hochgeladen.</p>
- <input id="ofpFile" type="file" accept="image/*" capture="environment" aria-label="OFP Foto auswählen"><div id="ofpViewer" hidden>
+ <p class="ofp-note">Foto auswählen oder aufnehmen. Die lokale Texterkennung ist nur verfügbar, wenn der Browser TextDetector unterstützt. Auf iPhone Safari ist dafür noch eine separat einzubindende Offline-OCR-Engine nötig. Alternativ kannst du die Demo testen. Keine Daten werden hochgeladen.</p>
+ <input id="ofpFile" type="file" accept="image/*" aria-label="OFP Foto aus Mediathek, Dateien oder Kamera auswählen"><div id="ofpViewer" hidden>
   <div class="ofp-zoom-toolbar"><button type="button" id="ofpZoomOut" aria-label="Verkleinern">−</button><span id="ofpZoomLabel">100%</span><button type="button" id="ofpZoomIn" aria-label="Vergrößern">+</button><button type="button" id="ofpZoomReset">Einpassen</button></div>
   <div id="ofpStage" aria-label="OFP Bild: mit einem Finger verschieben, mit zwei Fingern zoomen"><img id="ofpPreview" alt="Ausgewähltes OFP" draggable="false"></div>
   <div class="ofp-zoom-hint">iPhone: Zwei Finger zum Zoomen, ein Finger zum Verschieben · PC: Mausrad und Ziehen · Doppeltippen zum Vergrößern</div>
  </div>
  <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
- <label for="ofpText" class="ofp-note">OFP-Text (optional einfügen)</label><textarea id="ofpText" spellcheck="false" placeholder="OFP Text einfügen …"></textarea>
- <div class="ofp-actions"><button type="button" class="btn" id="ofpParse">Text auswerten</button><button type="button" class="btn" id="ofpDemo">Demo LX176</button></div>
+ <textarea id="ofpText" hidden aria-hidden="true" tabindex="-1"></textarea>
+ <div class="ofp-actions"><button type="button" class="btn" id="ofpDemo">Demo LX176</button></div>
  <div id="ofpReview" hidden><p class="ofp-note">Bitte jeden erkannten Wert mit dem OFP vergleichen. Rot = nicht erkannt; bisheriger Wert bleibt bestehen. RTOW wird nie übernommen.</p><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Erkannt / editierbar</th><th>Status</th></tr></thead><tbody id="ofpRows"></tbody></table>
  <label class="ofp-note"><input type="checkbox" id="ofpConfirm"> Ich habe alle Werte mit dem OFP verglichen.</label>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpApply">Bestätigte Werte übernehmen</button></div></div>
@@ -797,7 +797,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.29.2';
+const APP_VERSION='1.29.3';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1259,7 +1259,7 @@ $('ofpOpenBtn').onclick=()=>{$('ofpModal').hidden=false;$('ofpStatus').textConte
 $('ofpText').addEventListener('input',clearReviewOnly);
 $('ofpClose').onclick=()=>{$('ofpModal').hidden=true;};
 $('ofpDemo').onclick=()=>{selectionToken++;clearOFPResult();$('ofpFile').value='';$('ofpViewer').hidden=true;if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}$('ofpText').value=sample;showReview(parse(sample));$('ofpStatus').textContent='Demo-Werte geladen (kein OCR-Lauf).';};
-$('ofpParse').onclick=()=>{clearReviewOnly();if(!$('ofpText').value.trim()){$('ofpStatus').textContent='Kein OFP-Text vorhanden. Bitte Text einfügen oder Foto mit unterstützter OCR auswählen.';return;}showReview(parse($('ofpText').value));$('ofpStatus').textContent='Text ausgewertet. Bitte alle Werte kontrollieren.';};
+
 function clearReviewOnly(){detected={};reviewReady=false;$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
 $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;const token=++selectionToken;clearOFPResult();
  if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);$('ofpViewer').hidden=false;imgW=imgH=0;preview.src=objectUrl;$('ofpReview').hidden=true;
