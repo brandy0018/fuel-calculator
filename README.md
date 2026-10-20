@@ -18,3 +18,17 @@ Share → Add to Home Screen.
 
 The manifest and service worker use relative paths and therefore work when the
 site is hosted below a repository path such as /fuel-calculator/.
+
+Version 1.28.16: REMF option cards and SELECTED grouped in a common frame.
+
+Version 1.28.21: More prominent background and border for selected REMF option.
+
+Version 1.28.22: G/A remains editable and unchanged with ALTN enabled; no-ALTN HOLD is derived from ALTN REMF.
+
+Version 1.28.23: Switching from ALTN to no ALTN retains the calculated HOLD value, now editable.
+
+Version 1.28.25: HOLD no ALTN time and fuel use the same rounded whole-minute value when ALTN is enabled.
+
+Version 1.28.27: ALTN option is controlled by a checkbox beside the REMF with ALTN heading.
+
+- Remaining Fuel ist über die Pfeiltaste ein- und ausklappbar.
