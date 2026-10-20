@@ -618,7 +618,7 @@
 @media(max-width:430px){.overview-remf-pair::before{left:82px}.overview-remf-pair::after{left:105px;font-size:10px}}
 .overview-brace-note{position:absolute;left:110px;top:50%;transform:translateY(-50%);font-size:11px;color:#b9c3cc;white-space:nowrap;pointer-events:none}@media(max-width:430px){.overview-brace-note{left:105px;font-size:10px}}
 
-.remf-group{padding:12px 14px 14px;border-color:#46525e;background:#11171c}
+.remf-group{padding:12px 14px 14px;border-color:#273039;background:#151a1f}
 .remf-group .remaining-grid{margin:0 0 0 10px;width:calc(100% - 10px);gap:12px}
 .remf-group>.chosen{margin:12px 0 0}
 .remf-group .remaining-grid .card,.remf-group>.chosen{background:#1b2229;border:1px solid #39434d;border-radius:16px;padding:14px}
@@ -635,19 +635,29 @@
 .remf-collapse-btn:focus-visible{outline:2px solid #8cbad6;outline-offset:2px}
 .remf-chevron{display:block;transition:transform .18s ease;transform:rotate(0deg)}
 .remf-collapse-btn[aria-expanded="false"] .remf-chevron{transform:rotate(180deg)}
-#remfGroupBody[hidden]{display:none!important}
+#referenceBody[hidden],#remfGroupBody[hidden],#tripAddBody[hidden],#blockBody[hidden]{display:none!important}
 .remf-group-heading + #remfGroupBody{margin-top:12px}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.28.27 · Last update: 21.10.2026</div></div><div class="top-actions">
+.section-collapse-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.section-collapse-heading h2{margin:0}
+.section-collapse-heading + .section-collapse-body{margin-top:12px}
+.block-title-row .remf-collapse-btn{margin-left:auto}
+/* Subtle emphasis only while OVERVIEW is expanded. */
+#overviewCard{transition:background-color .18s ease,border-color .18s ease}
+#overviewCard:has(#overviewCollapseBtn[aria-expanded="true"]){background:#25323c;border-color:#586b7a}
+
+
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.28.37 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
     <button class="btn rel-btn" type="button" onclick="changeRel(1)">&gt;</button>
   </div>
+  <button class="btn" type="button" id="expandAllBtn" aria-label="Alle Fenster einklappen">Collapse All</button>
   <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
   <button class="btn" type="button" onclick="resetAll()">Reset</button>
 </div></div>
-<div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>EZFW <span class="ref-max" id="mzfwLimit">(max. 239’950)</span></label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW <span class="ref-max" id="mtowLimit">(max. 351’534)</span></label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Taxi Fuel</label><div class="refinput"><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Fuel</label><div class="refinput"><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div>
-<section class="card remf-group" aria-label="Remaining Fuel"><div class="remf-group-heading"><h2>Remaining Fuel</h2><button type="button" class="remf-collapse-btn" id="remfCollapseBtn" aria-expanded="true" aria-controls="remfGroupBody" aria-label="Remaining Fuel einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div>
+<div class="card"><div class="section-collapse-heading"><h2>REFERENCE</h2><button type="button" class="remf-collapse-btn" id="referenceCollapseBtn" aria-expanded="true" aria-controls="referenceBody" aria-label="REFERENCE einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="referenceBody" class="section-collapse-body"><div class="reference-grid"><div class="refbox"><label>EZFW <span class="ref-max" id="mzfwLimit">(max. 239’950)</span></label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW <span class="ref-max" id="mtowLimit">(max. 351’534)</span></label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Taxi Fuel</label><div class="refinput"><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Fuel</label><div class="refinput"><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div></div>
+<section class="card remf-group" aria-label="Remaining Fuel"><div class="remf-group-heading"><h2>REMAINING FUEL</h2><button type="button" class="remf-collapse-btn" id="remfCollapseBtn" aria-expanded="true" aria-controls="remfGroupBody" aria-label="Remaining Fuel einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div>
 <div id="remfGroupBody">
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
@@ -668,14 +678,14 @@
 </div></div>
 </div>
 </section>
-<div class="card" id="tripAddCard"><h2>TRIP & ADDITIONS</h2>
+<div class="card" id="tripAddCard"><div class="section-collapse-heading"><h2>TRIP & ADDITIONS</h2><button type="button" class="remf-collapse-btn" id="tripAddCollapseBtn" aria-expanded="true" aria-controls="tripAddBody" aria-label="TRIP & ADDITIONS einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="tripAddBody" class="section-collapse-body">
 <div class="fuelrow single"><label>Taxi</label><div></div><span class="unit"></span><div class="readonly" id="taxiRead">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Trip</label><div class="info-time" id="tripTimeRead">00:00</div><span class="unit">hh:mm</span><div class="readonly" id="tripFuelRead">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Contingency</label><div class="info-time" id="contTimeRead">≈ 0</div><span class="unit">min</span><input id="contFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>HighSpeed</label><div class="info-time" id="hsTime">≈ 0.0</div><span class="unit">min</span><input id="hsFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Extra</label><input id="extraTime" inputmode="decimal" placeholder="0"><span class="unit">min</span><input id="extraFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
-<div class="fuelrow sum"><label>Total</label><span></span><span></span><div class="calc big" id="total">0</div><span class="unit">kg</span></div></div>
-<div class="card" id="blockCard"><div class="block-title-row"><h2>BLOCK</h2><button class="btn override-btn" id="overrideBtn" type="button">OVRD OFF</button></div>
+<div class="fuelrow sum"><label>Total</label><span></span><span></span><div class="calc big" id="total">0</div><span class="unit">kg</span></div></div></div>
+<div class="card" id="blockCard"><div class="block-title-row"><h2>BLOCK</h2><button class="btn override-btn" id="overrideBtn" type="button">OVRD OFF</button><button type="button" class="remf-collapse-btn" id="blockCollapseBtn" aria-expanded="true" aria-controls="blockBody" aria-label="BLOCK einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="blockBody" class="section-collapse-body">
 <div class="fuelrow single"><div class="weight-line"><label>Weight Correction</label><span class="weight-delta" id="weightDelta">(Δ 0)</span></div><div></div><span></span><div class="calc" id="weight">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>APU</label><div class="info-time" id="apuTimeRead">00:00</div><span class="unit">hh:mm</span><input id="apuFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow sum block-fuel-row"><label>Block Fuel</label><span></span><span></span><input class="calc big block-fuel-value block-neutral block-fuel-input" id="block" inputmode="decimal" value="0" readonly><span class="unit">kg</span></div>
@@ -697,9 +707,9 @@
   <div><span class="rf-label">RF @ T/O:</span><span class="rf-value" id="blockDepartureRem">0</span><span class="rf-unit">kg</span></div>
   <div><span class="rf-label">RF @ DEST:</span><span class="rf-value" id="blockSelectedRem">0</span><span class="rf-unit">kg</span></div>
 </div>
-<div id="check" class="status"></div></div>
+<div id="check" class="status"></div></div></div>
 
-<div class="card overview-card" id="overviewCard"><h2>OVERVIEW</h2><div class="overview-grid">
+<div class="card overview-card" id="overviewCard"><div class="section-collapse-heading"><h2>OVERVIEW</h2><button type="button" class="remf-collapse-btn" id="overviewCollapseBtn" aria-expanded="true" aria-controls="overviewBody" aria-label="OVERVIEW einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="overviewBody" class="section-collapse-body"><div class="overview-grid">
 <div class="overview-row"><span>Final Reserve</span><span>30</span><span class="overview-unit">min</span><span id="overviewFrFuel">0</span><span class="overview-unit">kg</span></div>
 <div id="overviewRemfBrace" class="overview-remf-pair"><span id="overviewBraceNote" class="overview-brace-note">Alternate + 0 min</span>
 <div class="overview-row"><span id="overviewGaLabel">G/A</span><span id="overviewGaTime">0</span><span class="overview-unit">min</span><span id="overviewGaFuel">0</span><span class="overview-unit">kg</span></div>
@@ -717,11 +727,11 @@
 <div class="overview-row"><span>APU</span><span id="overviewApuTime">0</span><span class="overview-unit">min</span><span id="overviewApuFuel">0</span><span class="overview-unit">kg</span></div>
 <div class="overview-divider" aria-hidden="true"></div>
 <div class="overview-row overview-block-fuel"><strong>Block Fuel</strong><span></span><span></span><strong id="overviewBlockFuel">0</strong><strong class="overview-unit">kg</strong></div>
-</div></div>
-<div class="card massperf-card" id="massPerfCard"><h2>MASS &amp; PERFORMANCE</h2>
+</div></div></div>
+<div class="card massperf-card" id="massPerfCard"><div class="section-collapse-heading"><h2>MASS &amp; PERFORMANCE</h2><button type="button" class="remf-collapse-btn" id="massPerfCollapseBtn" aria-expanded="true" aria-controls="massPerfBody" aria-label="MASS & PERFORMANCE einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="massPerfBody" class="section-collapse-body">
   <div class="massperf-grid">
-    <div class="massperf-row"><div class="mp-label">LZFW (Limiting Zero Fuel Weight):</div><div class="mp-value" id="lzfw">0</div><div class="mp-unit">kg</div></div>
     <div class="massperf-row"><div class="mp-label">EZFW (Estimated Zero Fuel Weight):</div><div class="mp-value" id="ezfwPerf">0</div><div class="mp-unit">kg</div></div>
+    <div class="massperf-row"><div class="mp-label">LZFW (Limiting Zero Fuel Weight):</div><div class="mp-value" id="lzfw">0</div><div class="mp-unit">kg</div></div>
     <div class="massperf-separator"></div>
     <div class="massperf-balance-row massperf-balance-underload" id="zfwBalanceRow">
       <div class="massperf-balance-label" id="zfwBalanceLabel">ZFW Underload</div>
@@ -730,8 +740,8 @@
       <div class="massperf-balance-check" id="zfwBalanceMark">✓</div>
     </div>
     <div class="massperf-spacer"></div>
-    <div class="massperf-row"><div class="mp-label">RTOW (Restricting Take Off Weight):</div><div class="mp-value" id="rtowCalc">0</div><div class="mp-unit">kg</div></div>
     <div class="massperf-row"><div class="mp-label">ETOW (Estimating Take Off Weight):</div><div class="mp-value" id="etow">0</div><div class="mp-unit">kg</div></div>
+    <div class="massperf-row"><div class="mp-label">RTOW (Restricting Take Off Weight):</div><div class="mp-value" id="rtowCalc">0</div><div class="mp-unit">kg</div></div>
     <div class="massperf-separator"></div>
     <div class="massperf-balance-row massperf-balance-underload" id="towBalanceRow">
       <div class="massperf-balance-label" id="towBalanceLabel">TOW Underweight</div>
@@ -739,7 +749,7 @@
       <div class="massperf-balance-unit">kg</div>
       <div class="massperf-balance-check check-ok" id="towBalanceMark">✓</div>
     </div>
-  </div>
+  </div></div>
 </div>
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
 const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>weightInputIds.has(id)?parseWeight($(id).value):parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;let savedNoAltnTimes=null;
@@ -753,7 +763,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.28.27';
+const APP_VERSION='1.28.37';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1064,14 +1074,22 @@ $('ovrdCont').addEventListener('blur',()=>{
   calc();
 });
 
-/* Select all on focus for editable text/numeric fields, including iPhone taps. */
-document.addEventListener('focusin',event=>{
-  const field=event.target;
-  if(!(field instanceof HTMLInputElement) || field.readOnly || field.disabled || !field.value || !['text','number','tel','search'].includes(field.type)) return;
-  field.select();
-  setTimeout(()=>{
-    if(document.activeElement===field && !field.readOnly && !field.disabled) field.select();
-  },0);
+/* Select all on focus and on every tap/click in editable numeric fields (including iOS Safari).
+   Never select readonly/disabled values, and do not interfere with keyboard typing. */
+function selectEditableInput(field){
+  if(!(field instanceof HTMLInputElement) || field.readOnly || field.disabled ||
+     !['text','number','tel','search'].includes(field.type)) return;
+  const select=()=>{
+    if(document.activeElement!==field || field.readOnly || field.disabled) return;
+    try { field.select(); } catch(e) { /* unsupported input type */ }
+  };
+  select();
+  setTimeout(select,0);
+}
+document.addEventListener('focusin',event=>selectEditableInput(event.target));
+/* A second tap on an already focused field must select all again. */
+document.addEventListener('click',event=>{
+  if(event.detail>0) selectEditableInput(event.target);
 });
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
@@ -1091,14 +1109,43 @@ document.addEventListener('click',e=>{
 
 </script><script>
 (function(){
-  const btn=document.getElementById('remfCollapseBtn');
-  const body=document.getElementById('remfGroupBody');
-  if(!btn||!body)return;
-  btn.addEventListener('click',function(){
-    const expanded=btn.getAttribute('aria-expanded')==='true';
-    body.hidden=expanded;
-    btn.setAttribute('aria-expanded',String(!expanded));
-    btn.setAttribute('aria-label',expanded?'Remaining Fuel ausklappen':'Remaining Fuel einklappen');
+  const sections=[
+    ['referenceCollapseBtn','referenceBody','REFERENCE'],
+    ['remfCollapseBtn','remfGroupBody','Remaining Fuel'],
+    ['tripAddCollapseBtn','tripAddBody','TRIP & ADDITIONS'],
+    ['blockCollapseBtn','blockBody','BLOCK'],
+    ['overviewCollapseBtn','overviewBody','OVERVIEW'],
+    ['massPerfCollapseBtn','massPerfBody','MASS & PERFORMANCE']
+  ];
+  const allBtn=document.getElementById('expandAllBtn');
+  function setExpanded(buttonId,bodyId,title,expanded){
+    const btn=document.getElementById(buttonId),body=document.getElementById(bodyId);
+    if(!btn||!body)return;
+    body.hidden=!expanded;
+    btn.setAttribute('aria-expanded',String(expanded));
+    btn.setAttribute('aria-label',title+(expanded?' einklappen':' ausklappen'));
+  }
+  function syncAllButton(){
+    const allExpanded=sections.every(([id])=>document.getElementById(id)?.getAttribute('aria-expanded')==='true');
+    allBtn.textContent=allExpanded?'Collapse All':'Expand All';
+    allBtn.setAttribute('aria-label',allExpanded?'Alle Fenster einklappen':'Alle Fenster ausklappen');
+  }
+  function makeCollapsible(buttonId, bodyId, title){
+    const btn=document.getElementById(buttonId);
+    const body=document.getElementById(bodyId);
+    if(!btn||!body)return;
+    btn.addEventListener('click',function(){
+      const expanded=btn.getAttribute('aria-expanded')==='true';
+      setExpanded(buttonId,bodyId,title,!expanded);
+      syncAllButton();
+    });
+  }
+  sections.forEach(([buttonId,bodyId,title])=>makeCollapsible(buttonId,bodyId,title));
+  allBtn.addEventListener('click',()=>{
+    const allExpanded=sections.every(([id])=>document.getElementById(id)?.getAttribute('aria-expanded')==='true');
+    sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,!allExpanded));
+    syncAllButton();
   });
+  syncAllButton();
 })();
 </script></body></html>

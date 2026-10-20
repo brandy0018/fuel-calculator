@@ -32,3 +32,16 @@ Version 1.28.25: HOLD no ALTN time and fuel use the same rounded whole-minute va
 Version 1.28.27: ALTN option is controlled by a checkbox beside the REMF with ALTN heading.
 
 - Remaining Fuel ist über die Pfeiltaste ein- und ausklappbar.
+
+## v1.28.30
+TRIP & ADDITIONS and BLOCK can be collapsed independently, like Remaining Fuel. OVRD control remains accessible in BLOCK header.
+
+- v1.28.30: OVERVIEW ist über die Kopfzeile unabhängig einklappbar.
+
+- v1.28.32: Überschrift Remaining Fuel in REMAINING FUEL geändert.
+
+- v1.28.37: MASS & PERFORMANCE: EZFW vor LZFW und ETOW vor RTOW angeordnet.
+
+Version 1.28.37: Header-Schaltfläche Expand All / Collapse All für alle sechs Hauptfenster.
+
+- OVERVIEW erhält im ausgeklappten Zustand einen dezent hervorgehobenen Hintergrund und Rahmen.
