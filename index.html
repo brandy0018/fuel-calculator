@@ -3,6 +3,7 @@
 @media(max-width:640px){.fuelrow{grid-template-columns:minmax(85px,1fr) 82px 36px 82px 28px;gap:5px}.fuelrow input{font-size:15px;padding:9px}.unit{font-size:12px}.card{padding:12px}.wrap{max-width:100%}.remaining-grid{gap:8px;margin-left:5%;width:95%}.remaining-grid .fuelrow{grid-template-columns:minmax(54px,.9fr) 58px 28px 58px 24px}.remaining-grid .fuelrow label{font-size:11px}.remaining-grid .fuelrow input,.remaining-grid .readonly{padding:8px 4px;font-size:13px}.remaining-grid .unit{font-size:10px}.remaining-grid .card h2{font-size:10px}.reference-grid{grid-template-columns:1fr 1fr}.info-time{padding:0 6px;font-size:13px}}
 @media(max-width:430px){.remaining-grid{grid-template-columns:1fr;margin-left:4%;width:96%}.remaining-grid .card{padding:8px}.remaining-grid .fuelrow{grid-template-columns:minmax(38px,.8fr) 39px 21px 39px 19px;gap:3px}.remaining-grid .card h2{letter-spacing:.03em}.fuelrow{grid-template-columns:minmax(82px,1fr) 76px 34px 76px 26px}.reference-grid{grid-template-columns:1fr 1fr}}
 .selected-lines{display:grid;gap:5px;margin-top:8px}.selected-lines>div:first-child{font-weight:750;color:#fff}
+.ref-max{font-size:11px;font-weight:500;color:var(--muted,#9aa4ad);white-space:nowrap} .refbox label{white-space:nowrap}
 </style>
 <style>
 #autoBtn .altn-status { font-weight: 800; letter-spacing: .04em; }
@@ -603,7 +604,7 @@
 
 </style>
 
-</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.25.2 · Last update: 12.09.2026</div></div><div class="top-actions">
+</head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.27.0 · Last update: 20.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -612,7 +613,7 @@
   <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
   <button class="btn" type="button" onclick="resetAll()">Reset</button>
 </div></div>
-<div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>EZFW</label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW</label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>MZFW</label><div class="refinput"><div class="readonly ref-fixed" id="mzfwLimit">239’950</div><span class="unit">kg</span></div></div><div class="refbox"><label>MTOW</label><div class="refinput"><div class="readonly ref-fixed" id="mtowLimit">351’534</div><span class="unit">kg</span></div></div></div></div>
+<div class="card"><h2>REFERENCE</h2><div class="reference-grid"><div class="refbox"><label>EZFW <span class="ref-max" id="mzfwLimit">(max. 239’950)</span></label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW <span class="ref-max" id="mtowLimit">(max. 351’534)</span></label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Taxi Fuel</label><div class="refinput"><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Fuel</label><div class="refinput"><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div>
 <div class="remaining-grid">
 <div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
 <div class="fuelrow"><label>FR</label><div class="readonly">30</div><span class="unit">min</span><div class="readonly" id="finalCopyA">0</div><span class="unit">kg</span></div>
@@ -632,8 +633,8 @@
 <div id="selectedAltn">RF = FR + ALTN + 0.0 min</div>
 </div></div>
 <div class="card" id="tripAddCard"><h2>TRIP & ADDITIONS</h2>
-<div class="fuelrow single"><label>Taxi</label><div></div><span class="unit"></span><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
-<div class="fuelrow"><label>Trip</label><div class="info-time" id="tripTimeRead">00:00</div><span class="unit">hh:mm</span><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
+<div class="fuelrow single"><label>Taxi</label><div></div><span class="unit"></span><div class="readonly" id="taxiRead">0</div><span class="unit">kg</span></div>
+<div class="fuelrow"><label>Trip</label><div class="info-time" id="tripTimeRead">00:00</div><span class="unit">hh:mm</span><div class="readonly" id="tripFuelRead">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Contingency</label><div class="info-time" id="contTimeRead">≈ 0</div><span class="unit">min</span><input id="contFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>HighSpeed</label><div class="info-time" id="hsTime">≈ 0.0</div><span class="unit">min</span><input id="hsFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
 <div class="fuelrow"><label>Extra</label><input id="extraTime" inputmode="decimal" placeholder="0"><span class="unit">min</span><input id="extraFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div>
@@ -686,8 +687,18 @@
   </div>
 </div>
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div><script>
-const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;
-const APP_VERSION='1.25.2';
+const $=id=>document.getElementById(id), cleanNum=s=>String(s??'').replace(/[\s'’.,](?=\d{3}(\D|$))/g,'').replace(',', '.'), num=id=>weightInputIds.has(id)?parseWeight($(id).value):parseFloat(cleanNum($(id).value))||0, fmt=x=>Math.round(x).toLocaleString('de-CH'), mins=s=>{if(!s)return 0;let p=s.split(':');return p.length===2?(+p[0]||0)*60+(+p[1]||0):(+s||0)}, hhmm=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};let holdBMode='auto', syncing=false, overrideMode=false, calculatedBlock=0, ovrdRfSource=null;
+// Decimal weights in tonnes; grouped whole weights remain kilograms.
+const weightInputIds=new Set(['minBlock','finalFuel','altFuel','ezfw','rtow','taxi','tripFuel','contFuel','hsFuel','extraFuel','apuFuel','block','manualRf','ovrdCont']);
+function parseWeight(value){
+  const raw=String(value??'').trim().replace(/[\s'’]/g,'');
+  if(!raw)return 0;
+  const decimal=raw.match(/^([+-]?\d+)[.,](\d{1,2})$/);
+  if(decimal)return (parseFloat(decimal[1]+'.'+decimal[2])||0)*1000;
+  const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
+  return parseFloat(normalized)||0;
+}
+const APP_VERSION='1.27.0';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -733,9 +744,9 @@ function clearSavedState(){
 }
 
 function formatNumericInput(el){
-  const raw=cleanNum(el.value);
+  const raw=String(el.value??'').trim();
   if(raw===''){el.value='';return;}
-  const n=parseFloat(raw);
+  const n=weightInputIds.has(el.id)?parseWeight(raw):parseFloat(cleanNum(raw));
   if(Number.isFinite(n)) el.value=Math.round(n).toLocaleString('de-CH');
 }
 function formatTripTimeInput(v){
@@ -805,7 +816,7 @@ function syncOvrdRtRfFromSource(){
   }
   syncing=false;
 }
-function calc(){syncOvrdRtRfFromSource();let f=num('finalFuel'),flow=f/30,ga=num('gaTime'),ha=num('holdATime'),gaF=ga*flow,haF=ha*flow,ra=f+gaF+haF,raT=30+ga+ha,alt=num('altFuel');$('gaFuel').textContent=fmt(gaF);$('holdAFuel').textContent=fmt(haF);$('remA').textContent=fmt(ra);$('remATime').textContent=Math.round(raT);$('finalCopy').textContent=fmt(f);$('finalCopyA').textContent=fmt(f);$('altFuelCopy').textContent=fmt(alt);let altT=f?(alt/f*30):0;$('altTime').textContent=Math.round(altT);let hbF,hbT;if(holdBMode==='auto'){hbF=Math.max(0,ra-f-alt);hbT=flow?hbF/flow:0;$('holdBFuel').value=hbF?Math.round(hbF):'';$('holdBTime').value=hbT?Math.round(hbT):''}else{hbT=num('holdBTime');hbF=hbT*flow;$('holdBFuel').value=hbF?Math.round(hbF):''}let rb=f+alt+hbF,rbT=30+altT+hbT;$('remB').textContent=fmt(rb);$('remBTime').textContent=Math.round(rbT);let useB=rb>ra,rem=useB?rb:ra,remT=useB?rbT:raT;$('remaining').textContent=fmt(rem);$('remainingTime').textContent=Math.round(remT);let selectedLabel=useB?'Option with ALTN selected':'Option no ALTN selected';$('selectedPath').textContent=selectedLabel;let eqNoAltnMin=f>0?Math.max(0,(rem-f-gaF)/(f/30)):0;let eqAltnMin=f>0?Math.max(0,(rem-f-alt)/(f/30)):0;$('selectedNoAltn').textContent='RF = FR + G/A + '+Math.round(eqNoAltnMin)+' min';$('selectedAltn').textContent='RF = FR + ALTN + '+Math.round(eqAltnMin)+' min';$('aCard').classList.toggle('remf-selected',!useB);$('bCard').classList.toggle('remf-selected',useB);
+function calc(){$('taxiRead').textContent=fmt(num('taxi'));$('tripFuelRead').textContent=fmt(num('tripFuel'));syncOvrdRtRfFromSource();let f=num('finalFuel'),flow=f/30,ga=num('gaTime'),ha=num('holdATime'),gaF=ga*flow,haF=ha*flow,ra=f+gaF+haF,raT=30+ga+ha,alt=num('altFuel');$('gaFuel').textContent=fmt(gaF);$('holdAFuel').textContent=fmt(haF);$('remA').textContent=fmt(ra);$('remATime').textContent=Math.round(raT);$('finalCopy').textContent=fmt(f);$('finalCopyA').textContent=fmt(f);$('altFuelCopy').textContent=fmt(alt);let altT=f?(alt/f*30):0;$('altTime').textContent=Math.round(altT);let hbF,hbT;if(holdBMode==='auto'){hbF=Math.max(0,ra-f-alt);hbT=flow?hbF/flow:0;$('holdBFuel').value=hbF?Math.round(hbF):'';$('holdBTime').value=hbT?Math.round(hbT):''}else{hbT=num('holdBTime');hbF=hbT*flow;$('holdBFuel').value=hbF?Math.round(hbF):''}let rb=f+alt+hbF,rbT=30+altT+hbT;$('remB').textContent=fmt(rb);$('remBTime').textContent=Math.round(rbT);let useB=rb>ra,rem=useB?rb:ra,remT=useB?rbT:raT;$('remaining').textContent=fmt(rem);$('remainingTime').textContent=Math.round(remT);let selectedLabel=useB?'Option with ALTN selected':'Option no ALTN selected';$('selectedPath').textContent=selectedLabel;let eqNoAltnMin=f>0?Math.max(0,(rem-f-gaF)/(f/30)):0;let eqAltnMin=f>0?Math.max(0,(rem-f-alt)/(f/30)):0;$('selectedNoAltn').textContent='RF = FR + G/A + '+Math.round(eqNoAltnMin)+' min';$('selectedAltn').textContent='RF = FR + ALTN + '+Math.round(eqAltnMin)+' min';$('aCard').classList.toggle('remf-selected',!useB);$('bCard').classList.toggle('remf-selected',useB);
 let trip=num('tripFuel'),tm=mins($('tripTime').value),cont=num('contFuel'),extra=num('extraFuel'),hs=num('hsFuel');$('tripTimeRead').textContent=$('tripTime').value||'00:00';let tripRate=tm?trip/tm:0;$('contTimeRead').textContent=tripRate&&cont?'≈ '+Math.round(cont/tripRate):'≈ 0';$('hsTime').textContent='≈ '+(hs/110).toFixed(1);let total=rem+num('taxi')+trip+cont+hs+extra;$('total').textContent=fmt(total);let mb=num('minBlock'),normalWc=Math.max(0,((total-mb)/1000)*280);let apu=num('apuFuel');$('apuTimeRead').textContent=apu?hhmm(apu/4):'00:00';calculatedBlock=total+normalWc+apu;let block=overrideMode?num('block'):calculatedBlock;if(!overrideMode)$('block').value=fmt(block);
 let manualRfEntered=overrideMode && String($('manualRf').value||'').trim()!=='';
 let ovrdAddEntered=overrideMode && String($('ovrdCont').value||'').trim()!=='';
@@ -978,6 +989,16 @@ $('ovrdCont').addEventListener('input',()=>{
 $('ovrdCont').addEventListener('blur',()=>{
   if($('ovrdCont').value!=='')formatNumericInput($('ovrdCont'));
   calc();
+});
+
+/* Select all on focus for editable text/numeric fields, including iPhone taps. */
+document.addEventListener('focusin',event=>{
+  const field=event.target;
+  if(!(field instanceof HTMLInputElement) || field.readOnly || field.disabled || !field.value || !['text','number','tel','search'].includes(field.type)) return;
+  field.select();
+  setTimeout(()=>{
+    if(document.activeElement===field && !field.readOnly && !field.disabled) field.select();
+  },0);
 });
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
