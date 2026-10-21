@@ -698,7 +698,7 @@
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
 
-/* v1.31.7: Previous OFP values and signed deltas. */
+/* v1.31.8: Right-aligned OCR comparison with units. */
 .ofp-review-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .ofp-review-scroll .ofp-table{min-width:580px}
 .ofp-review-scroll .ofp-table td:first-child{width:auto}
@@ -709,8 +709,16 @@
 .ofp-delta.positive{color:#ff7777}
 .ofp-delta.negative{color:#73dfaa}
 .ofp-delta.unchanged{color:#b9c7d3}
+/* Keep labels readable; align all numeric values, headers and deltas to the right. */
+.ofp-review-scroll .ofp-table th:not(:first-child),
+.ofp-review-scroll .ofp-table td:not(:first-child){text-align:right}
+.ofp-review-scroll .ofp-table th:first-child,
+.ofp-review-scroll .ofp-table td:first-child{text-align:left}
+.ofp-review-scroll .ofp-table td:nth-child(3) .ofp-new-wrap{display:flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap}
+.ofp-review-scroll .ofp-table td:nth-child(3) input{text-align:right;flex:0 0 50%;width:50%;min-width:0}
+.ofp-new-unit{font-size:12px;color:#c3ced9;white-space:nowrap}
 @media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:570px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.7 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.8 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -828,7 +836,7 @@
  <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
  <textarea id="ofpText" hidden aria-hidden="true" tabindex="-1"></textarea>
  <details id="ezfwDiagnostic" hidden style="margin:10px 0;padding:10px;border:1px solid #b57b31;border-radius:8px"><summary>OCR-Diagnose: Rohtext anzeigen</summary><p class="ofp-note">Zeigt den vollständigen OCR-Rohtext sowie gegebenenfalls den separat erkannten Gewichtsbereich und Hinweise zur EZFW-Prüfung.</p><textarea id="ezfwRaw" readonly rows="9" style="width:100%;font-family:monospace;font-size:12px"></textarea><button type="button" id="ezfwCopy">Diagnose kopieren</button></details>
- <div id="ofpReview" hidden><div class="ofp-review-scroll"><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Alt</th><th>Neu / editierbar</th><th>Δ Neu − Alt</th><th class="ofp-jump-cell" aria-label="OFP-Ausschnitt"></th><th aria-label="OCR-Status">●</th></tr></thead><tbody id="ofpRows"></tbody></table></div>
+ <div id="ofpReview" hidden><div class="ofp-review-scroll"><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Alt</th><th>Neu / editierbar</th><th>Δ Neu − Alt</th><th class="ofp-jump-cell" aria-label="OFP-Ausschnitt"></th><th aria-label="OCR-Status">OCR</th></tr></thead><tbody id="ofpRows"></tbody></table></div>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpApply">Bestätigte Werte übernehmen</button></div></div>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpClose">Schließen</button></div>
  </div></div>
@@ -844,7 +852,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.31.7'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.31.8'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
@@ -1416,6 +1424,7 @@ function ofpOldDisplay(id,raw){
  if(value===null)return '—';
  return id==='tripTime'?hhmm(value):id==='relValue'?String(value):formatOFPValue(id,String(value));
 }
+function ofpUnit(id){return id==='relValue'?'':id==='tripTime'?'h':'kg';}
 function updateOFPDelta(id,oldRaw,newRaw,element){
  if(id==='relValue'){element.textContent='';element.className='ofp-delta';element.title='Für Release wird keine Differenz angezeigt';return;}
  const previous=ofpComparable(id,oldRaw),current=ofpComparable(id,newRaw);
@@ -1431,7 +1440,7 @@ function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=
  fields.forEach(([id,label])=>{
   const tr=document.createElement('tr'),td=document.createElement('td'),oldCell=document.createElement('td'),cell=document.createElement('td'),deltaCell=document.createElement('td'),jumpCell=document.createElement('td'),status=document.createElement('td'),input=document.createElement('input');
   td.textContent=label;
-  const oldRaw=ofpOldValue(id);oldCell.textContent=ofpOldDisplay(id,oldRaw);oldCell.className='ofp-old';
+  const oldRaw=ofpOldValue(id);oldCell.textContent=ofpOldDisplay(id,oldRaw)+(ofpComparable(id,oldRaw)!==null&&ofpUnit(id)?' '+ofpUnit(id):'');oldCell.className='ofp-old';
   input.value=formatOFPValue(id,data[id]??'');
   input.dataset.id=id;
   input.className=String(input.value).trim()?'':'missing';
@@ -1445,7 +1454,9 @@ function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=
    // Manuell geänderte Werte müssen vor der Übernahme nochmals geprüft werden.
    setOFPStatus(status,raw?'problematic':'missing');
   });
-  cell.append(input);
+  const newWrap=document.createElement('span');newWrap.className='ofp-new-wrap';
+  const newUnit=document.createElement('span');newUnit.className='ofp-new-unit';newUnit.textContent=ofpUnit(id);
+  newWrap.append(input,newUnit);cell.append(newWrap);
   jumpCell.className='ofp-jump-cell';
   const jump=document.createElement('button');jump.type='button';jump.className='ofp-jump';jump.textContent='ZOOM';
   jump.setAttribute('aria-label','OFP-Bereich für '+label+' anzeigen');jump.title='Zu '+label+' im OFP springen';
