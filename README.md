@@ -1,7 +1,5 @@
-Fuel Calculator v1.29.9 — 21.10.2026
+Fuel Calculator v1.30.2 – 21.10.2026
 
-Reset entfernt jetzt auch alle grünen und roten OCR-Hintergrundmarkierungen aus REFERENCE.
+Fix: EZFW parser reads only first six-digit ZFW weight, not both ZFW and MZFW. Targeted OCR retry crop.
 
-GitHub Pages: index.html, sw.js und manifest.webmanifest ins Repository-Stammverzeichnis hochladen. Lokal: index.html direkt öffnen.
-
-Demo LX176 verwendet hinterlegte Werte; keine vollständige Offline-OCR.
+GitHub Pages: upload index.html, sw.js, manifest.webmanifest to repository root.
