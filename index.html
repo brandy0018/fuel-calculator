@@ -697,7 +697,7 @@
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.3 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.4 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -814,7 +814,7 @@
  </div>
  <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
  <textarea id="ofpText" hidden aria-hidden="true" tabindex="-1"></textarea>
- <details id="ezfwDiagnostic" hidden style="display:none !important;margin:10px 0;padding:10px;border:1px solid #b57b31;border-radius:8px"><summary>OCR-Diagnose: Rohtext anzeigen</summary><p class="ofp-note">Zeigt den vollständigen OCR-Rohtext sowie gegebenenfalls den separat erkannten Gewichtsbereich und Hinweise zur EZFW-Prüfung.</p><textarea id="ezfwRaw" readonly rows="9" style="width:100%;font-family:monospace;font-size:12px"></textarea><button type="button" id="ezfwCopy">Diagnose kopieren</button></details>
+ <details id="ezfwDiagnostic" hidden style="margin:10px 0;padding:10px;border:1px solid #b57b31;border-radius:8px"><summary>OCR-Diagnose: Rohtext anzeigen</summary><p class="ofp-note">Zeigt den vollständigen OCR-Rohtext sowie gegebenenfalls den separat erkannten Gewichtsbereich und Hinweise zur EZFW-Prüfung.</p><textarea id="ezfwRaw" readonly rows="9" style="width:100%;font-family:monospace;font-size:12px"></textarea><button type="button" id="ezfwCopy">Diagnose kopieren</button></details>
  <div id="ofpReview" hidden><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Wert / editierbar</th><th class="ofp-jump-cell" aria-label="OFP-Ausschnitt"></th><th aria-label="OCR-Status">●</th></tr></thead><tbody id="ofpRows"></tbody></table>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpApply">Bestätigte Werte übernehmen</button></div></div>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpClose">Schließen</button></div>
@@ -831,7 +831,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.31.3';
+const APP_VERSION='1.31.4';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
