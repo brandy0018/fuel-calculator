@@ -663,7 +663,7 @@
 #ofpPreview{position:absolute;display:block;max-width:none;max-height:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
 .ofp-zoom-hint{font-size:11px;color:#b9c8d2;padding:6px 9px}
 
-/* v1.29.6: OFP comparison on narrow screens */
+/* v1.29.7: OFP comparison on narrow screens */
 .ofp-dialog{width:min(920px,100%)}
 #ofpViewer{position:sticky;top:0;z-index:2;box-shadow:0 6px 18px #0009}
 #ofpStage{height:min(38vh,330px);min-height:170px}
@@ -685,14 +685,14 @@
  .ofp-table input{min-width:0;font-size:16px;padding:7px}
  .ofp-table td:first-child{width:39%}
 }
-/* v1.29.6: compact, accessible OCR status icons */
+/* v1.29.7: compact, accessible OCR status icons */
 .ofp-table td:last-child,.ofp-table th:last-child{width:38px;text-align:center;padding-left:2px;padding-right:2px}
 .ofp-ocr-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:18px;font-weight:800;line-height:1}
 .ofp-ocr-icon.recognized{color:#3ed38a}
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.6 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.7 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -805,7 +805,7 @@
  <input id="ofpFile" type="file" accept="image/*" aria-label="OFP Foto aus Mediathek, Dateien oder Kamera auswählen"><div id="ofpViewer" hidden>
   <div class="ofp-zoom-toolbar"><button type="button" id="ofpZoomOut" aria-label="Verkleinern">−</button><span id="ofpZoomLabel">100%</span><button type="button" id="ofpZoomIn" aria-label="Vergrößern">+</button><button type="button" id="ofpZoomReset">Einpassen</button></div>
   <div id="ofpStage" aria-label="OFP Bild: mit einem Finger verschieben, mit zwei Fingern zoomen"><img id="ofpPreview" alt="Ausgewähltes OFP" draggable="false"></div>
-  <div class="ofp-zoom-hint">iPhone: Zwei Finger zum Zoomen, ein Finger zum Verschieben · PC: Mausrad und Ziehen · Doppeltippen zum Vergrößern</div>
+  
  </div>
  <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
  <textarea id="ofpText" hidden aria-hidden="true" tabindex="-1"></textarea>
@@ -827,7 +827,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.29.6';
+const APP_VERSION='1.29.7';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1270,9 +1270,10 @@ function constrain(){const w=stage.clientWidth,h=stage.clientHeight,iw=imgW*zoom
  panY=ih<=h?(h-ih)/2:Math.min(0,Math.max(h-ih,panY));}
 function drawImage(){if(!imgW)return;constrain();preview.style.width=imgW+'px';preview.style.height=imgH+'px';preview.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;$('ofpZoomLabel').textContent=Math.round(zoom/fit*100)+'%';}
 function fitImage(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit;panX=panY=0;drawImage();}
+function initialOFPView(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit*2.5;panX=(stage.clientWidth-imgW*zoom)/2;panY=0;drawImage();}
 function zoomAt(factor,x=stage.clientWidth/2,y=stage.clientHeight/2){if(!imgW)return;const next=Math.max(fit,Math.min(fit*8,zoom*factor));const k=next/zoom;panX=x-(x-panX)*k;panY=y-(y-panY)*k;zoom=next;drawImage();}
 $('ofpZoomIn').onclick=()=>zoomAt(1.5);$('ofpZoomOut').onclick=()=>zoomAt(1/1.5);$('ofpZoomReset').onclick=fitImage;
-preview.onload=()=>{imgW=preview.naturalWidth;imgH=preview.naturalHeight;fitImage();};
+preview.onload=()=>{imgW=preview.naturalWidth;imgH=preview.naturalHeight;initialOFPView();};
 stage.addEventListener('wheel',e=>{if(!imgW)return;e.preventDefault();const r=stage.getBoundingClientRect();zoomAt(e.deltaY<0?1.2:1/1.2,e.clientX-r.left,e.clientY-r.top);},{passive:false});
 function point(e){const r=stage.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
@@ -1280,7 +1281,7 @@ stage.addEventListener('pointerdown',e=>{if(!imgW)return;e.preventDefault();stag
 stage.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId)||!gesture)return;e.preventDefault();pointers.set(e.pointerId,point(e));const ps=[...pointers.values()];if(ps.length===1&&gesture.type==='pan'){panX=gesture.px+ps[0].x-gesture.x;panY=gesture.py+ps[0].y-gesture.y;if(Math.abs(ps[0].x-gesture.x)+Math.abs(ps[0].y-gesture.y)>8)gesture.moved=true;drawImage();}else if(ps.length===2&&gesture.type==='pinch'){const mid={x:(ps[0].x+ps[1].x)/2,y:(ps[0].y+ps[1].y)/2};const next=Math.max(fit,Math.min(fit*8,gesture.zoom*distance(ps[0],ps[1])/Math.max(1,gesture.dist)));const k=next/gesture.zoom;panX=mid.x-(gesture.mid.x-gesture.px)*k;panY=mid.y-(gesture.mid.y-gesture.py)*k;zoom=next;drawImage();}});
 function release(e){if(!pointers.has(e.pointerId))return;const wasTap=pointers.size===1&&gesture?.type==='pan'&&!gesture.moved;const pos=point(e);pointers.delete(e.pointerId);if(!pointers.size){stage.classList.remove('dragging');gesture=null;if(wasTap){const now=Date.now();if(now-lastTap<330){zoomAt(zoom>fit*1.5?fit/zoom:2,pos.x,pos.y);lastTap=0;}else lastTap=now;}}else{const p=[...pointers.values()][0];gesture={type:'pan',x:p.x,y:p.y,px:panX,py:panY,moved:true};}}
 stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);
-window.addEventListener('resize',()=>{if(imgW&& !$('ofpViewer').hidden)fitImage();});
+window.addEventListener('resize',()=>{if(imgW&& !$('ofpViewer').hidden)initialOFPView();});
 function ofpDigits(raw){return String(raw??'').replace(/\./g,'');}
 function formatOFPValue(id,raw){const value=String(raw??'').trim();if(!value||id==='relValue'||id==='tripTime')return value;const digits=ofpDigits(value);return /^\d{1,6}$/.test(digits)?digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):value;}
 function classifyOFPField(id,raw,data){
