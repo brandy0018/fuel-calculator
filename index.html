@@ -697,7 +697,7 @@
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.2 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.3 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -831,7 +831,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.31.2';
+const APP_VERSION='1.31.3';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1255,13 +1255,24 @@ function parse(text){
  };
  // Independent weight-balance check: ZFW + TOF = TOW.
  // It catches plausible-looking OCR digit substitutions (e.g. 216925 vs 216525).
- const weightLine=(label)=>lines.find(x=>new RegExp('^'+label+'\\s+').test(x))||'';
+ // OCR may separate labels and numbers, insert punctuation, or mistake O/I/S for digits.
+ // Only accept values in a realistic weight range to avoid unrelated table columns.
  const weightValue=(label)=>{
-  const row=weightLine(label);
-  const m=row.match(new RegExp('^'+label+'\\s+([0-9][0-9., ]{4,9})'));
-  if(!m)return null;
-  const digits=m[1].replace(/[^0-9]/g,'').slice(0,6);
-  return /^\d{6}$/.test(digits)?Number(digits):null;
+  const labelPattern=new RegExp('(?:^|\\s)'+label.split('').join('\\s*')+'(?:\\s|[:=.-])','i');
+  for(let i=0;i<lines.length;i++){
+   const match=labelPattern.exec(lines[i]);
+   if(!match)continue;
+   const tail=lines[i].slice(match.index+match[0].length);
+   for(const candidate of [tail,tail+' '+(lines[i+1]||'')]){
+    const found=/(?:^|[^A-Z0-9])([0-9OILSB]{6})(?![0-9OILSB])/i.exec(candidate);
+    if(!found)continue;
+    const digits=found[1].replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8');
+    const n=Number(digits);
+    if(label==='TOW'&&n>=200000&&n<=400000)return n;
+    if(label==='TOF'&&n>=10000&&n<=180000)return n;
+   }
+  }
+  return null;
  };
  const rawZfw=zfwCandidate(text);
  const tof=weightValue('TOF'),tow=weightValue('TOW');
@@ -1346,7 +1357,7 @@ function formatOFPValue(id,raw){const value=String(raw??'').trim();if(!value||id
 function classifyOFPField(id,raw,data){
  raw=id==='relValue'||id==='tripTime'?raw:ofpDigits(raw);
  if(!raw)return 'missing';
- if(id==='ezfw' && (data._ezfwConflict || (!data._ezfwOcr && raw)))return 'problematic';
+ if(id==='ezfw' && (data._ezfwConflict || !data._ezfwOcr || data._ezfwCalculated===null || Number(data._ezfwOcr)!==data._ezfwCalculated))return 'problematic';
  if(id==='relValue')return /^\d{1,3}$/.test(raw)?'recognized':'problematic';
  if(id==='tripTime'){
   const match=raw.match(/^(\d{1,2}):(\d{2})$/);
@@ -1454,8 +1465,8 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
    }
    // If the full-page pass missed ZFW, try a separate high-resolution OCR
    // pass on the left side, where the weight table is located on this OFP.
-   if(!values.ezfw){
-    $('ofpStatus').textContent='EZFW nicht gefunden – prüfe Gewichtstabelle separat …';
+   if(!values.ezfw || values._ezfwCalculated===null){
+    $('ofpStatus').textContent='EZFW-Gewichtsprüfung – prüfe Gewichtstabelle separat …';
     try{
      const bitmap=await createImageBitmap(file);
      const canvas=document.createElement('canvas');
@@ -1473,9 +1484,9 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
      // the crop often supplies ZFW/ZEW. Parsing the crop alone loses the
      // cross-check metadata and incorrectly turns an OCR conflict green.
      const combined=parse(rawText+'\n'+ezfwRetryText);
-     values.ezfw=combined.ezfw;
+     values.ezfw=combined.ezfw||values.ezfw;
      values._ezfwConflict=combined._ezfwConflict;
-     values._ezfwOcr=combined._ezfwOcr;
+     values._ezfwOcr=combined._ezfwOcr||values._ezfwOcr;
      values._ezfwCalculated=combined._ezfwCalculated;
     }catch(e){console.warn('EZFW OCR retry failed',e);}
    }

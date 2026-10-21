@@ -1,4 +1,4 @@
-const CACHE_NAME='fuelcalc-v1.31.2';
+const CACHE_NAME='fuelcalc-v1.31.3';
 const APP_SHELL=['./','./index.html','./manifest.webmanifest',
   './ocr/eng.traineddata.gz',
   './ocr/tesseract-core-lstm.js',
