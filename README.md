@@ -1,5 +1,7 @@
-Fuel Calculator v1.30.11 (21.10.2026)
+Fuel Calculator v1.31.0 — Offline OCR
 
-Updated OCR plausibility ranges: RLS 1–15, EZFW 200000–239950, Taxi 100–1000, Trip 60000–154229, Trip Time hh:mm <=24:59, ALTN 2000–10000, Final 2750–3500, Minimum Block 75000–154229. EZFW independent weight check retained.
+GitHub Pages: alle Dateien und den Ordner ocr/ zusammen hochladen. Nach vollständigem ersten Laden kann die installierte PWA ohne Internet OFPs auswerten.
 
-Upload index.html, sw.js, manifest.webmanifest to GitHub Pages root.
+Hinweis: Direktes Öffnen per file:// kann Web Worker und WASM blockieren; dafür GitHub Pages oder lokalen HTTP-Server nutzen.
+
+OCR: Tesseract.js 7.0.0, tesseract.js-core 7.0.0, englische traineddata.

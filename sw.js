@@ -1,5 +1,23 @@
-const CACHE_NAME='fuelcalc-v1.30.11';
-const APP_SHELL=['./','./index.html','./manifest.webmanifest'];
+const CACHE_NAME='fuelcalc-v1.31.0';
+const APP_SHELL=['./','./index.html','./manifest.webmanifest',
+  './ocr/eng.traineddata.gz',
+  './ocr/tesseract-core-lstm.js',
+  './ocr/tesseract-core-lstm.wasm',
+  './ocr/tesseract-core-lstm.wasm.js',
+  './ocr/tesseract-core-relaxedsimd-lstm.js',
+  './ocr/tesseract-core-relaxedsimd-lstm.wasm',
+  './ocr/tesseract-core-relaxedsimd-lstm.wasm.js',
+  './ocr/tesseract-core-relaxedsimd.js',
+  './ocr/tesseract-core-relaxedsimd.wasm',
+  './ocr/tesseract-core-relaxedsimd.wasm.js',
+  './ocr/tesseract-core-simd-lstm.js',
+  './ocr/tesseract-core-simd-lstm.wasm',
+  './ocr/tesseract-core-simd-lstm.wasm.js',
+  './ocr/tesseract-core-simd.js',
+  './ocr/tesseract-core-simd.wasm',
+  './ocr/tesseract-core-simd.wasm.js',
+  './ocr/tesseract.min.js',
+  './ocr/worker.min.js'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();

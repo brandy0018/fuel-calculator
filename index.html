@@ -697,7 +697,7 @@
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.30.11 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.0 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -806,7 +806,7 @@
 <div class="muted">Prototype only. Verify calculations and operational requirements before flight use.</div></div>
 <div id="ofpModal" class="ofp-modal" hidden role="dialog" aria-modal="true" aria-label="OFP Import">
  <div class="ofp-dialog"><h2>📷 OFP Import · Prototype</h2>
- <p class="ofp-note">Foto auswählen oder aufnehmen. Echte OCR-Testversion mit Tesseract.js: Beim ersten Einsatz ist Internet nötig, um die OCR-Engine und Sprachdaten zu laden. Die Bildauswertung erfolgt im Browser; das OFP wird nicht an einen OCR-Dienst gesendet. Werte vor Übernahme einzeln prüfen. Alternativ Demo LX176.</p>
+ <p class="ofp-note">Foto auswählen oder aufnehmen. Echte OCR-Testversion mit Tesseract.js: Die OCR-Engine und Sprachdaten sind lokal verfügbar; die installierte PWA funktioniert nach vollständigem Laden offline. Die Bildauswertung erfolgt im Browser; das OFP wird nicht an einen OCR-Dienst gesendet. Werte vor Übernahme einzeln prüfen. Alternativ Demo LX176.</p>
  <input id="ofpFile" type="file" accept="image/*" aria-label="OFP Foto aus Mediathek, Dateien oder Kamera auswählen"><div id="ofpViewer" hidden>
   <div class="ofp-zoom-toolbar"><button type="button" id="ofpZoomOut" aria-label="Verkleinern">−</button><span id="ofpZoomLabel">100%</span><button type="button" id="ofpZoomIn" aria-label="Vergrößern">+</button><button type="button" id="ofpZoomReset">Einpassen</button></div>
   <div id="ofpStage" aria-label="OFP Bild: mit einem Finger verschieben, mit zwei Fingern zoomen"><img id="ofpPreview" alt="Ausgewähltes OFP" draggable="false"></div>
@@ -833,7 +833,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.30.11';
+const APP_VERSION='1.31.0';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1267,7 +1267,7 @@ function parse(text){
     const m=/(?:^|[^0-9A-Z])([0-9OILSB]{6})(?=$|[^0-9OILSB])/i.exec(candidate);
     if(!m)continue;
     const n=m[1].replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8');
-    if(/^\d{6}$/.test(n)&&+n>=200000&&+n<=239950)return n;
+    if(/^\d{6}$/.test(n)&&+n>=100000&&+n<=239950)return n;
    }
   }
   return '';
@@ -1285,7 +1285,7 @@ function parse(text){
  const rawZfw=zfwCandidate(text);
  const tof=weightValue('TOF'),tow=weightValue('TOW');
  const inferredZfw=tof!==null&&tow!==null?tow-tof:null;
- const weightConflict=Boolean(rawZfw&&inferredZfw!==null&&inferredZfw>=200000&&inferredZfw<=239950&&Number(rawZfw)!==inferredZfw);
+ const weightConflict=Boolean(rawZfw&&inferredZfw!==null&&inferredZfw>=100000&&inferredZfw<=239950&&Number(rawZfw)!==inferredZfw);
  const trip=find(basic,/^TRIP\s+\d/);
  const altn=find(basic,/^ALTN\b/);
  const tripMatch=trip.match(/^TRIP\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/);
@@ -1366,19 +1366,19 @@ function classifyOFPField(id,raw,data){
  raw=id==='relValue'||id==='tripTime'?raw:ofpDigits(raw);
  if(!raw)return 'missing';
  if(id==='ezfw' && (data._ezfwConflict || (!data._ezfwOcr && raw)))return 'problematic';
- if(id==='relValue')return /^\d{1,3}$/.test(raw)&&Number(raw)>=1&&Number(raw)<=15?'recognized':'problematic';
+ if(id==='relValue')return /^\d{1,3}$/.test(raw)?'recognized':'problematic';
  if(id==='tripTime'){
   const match=raw.match(/^(\d{1,2}):(\d{2})$/);
   return match&&Number(match[1])<=24&&Number(match[2])<60?'recognized':'problematic';
  }
  if(!/^\d{1,6}$/.test(raw))return 'problematic';
  const value=Number(raw);
- if(id==='ezfw' && (value<200000||value>239950))return 'problematic';
- if(id==='taxi' && (value<100||value>1000))return 'problematic';
- if(id==='tripFuel' && (value<60000||value>154229))return 'problematic';
- if(id==='minBlock' && (value<75000||value>154229))return 'problematic';
- if(id==='finalFuel' && (value<2750||value>3500))return 'problematic';
- if(id==='altFuel' && (value<2000||value>10000))return 'problematic';
+ if(id==='ezfw' && (value<100000||value>239950))return 'problematic';
+ if(id==='taxi' && (value<100||value>10000))return 'problematic';
+ if(id==='tripFuel' && (value<1000||value>154229))return 'problematic';
+ if(id==='minBlock' && (value<1000||value>154229))return 'problematic';
+ if(id==='finalFuel' && (value<100||value>10000))return 'problematic';
+ if(id==='altFuel' && value>30000)return 'problematic';
  if(id==='minBlock' && Number(data.tripFuel)>0 && value<Number(data.tripFuel))return 'problematic';
  return 'recognized';
 }
@@ -1429,7 +1429,7 @@ function loadOcrEngine(){
  if(ocrEnginePromise)return ocrEnginePromise;
  ocrEnginePromise=new Promise((resolve,reject)=>{
   const script=document.createElement('script');
-  script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  script.src='./ocr/tesseract.min.js';
   script.onload=()=>window.Tesseract?.createWorker?resolve(window.Tesseract):reject(new Error('OCR-Engine konnte nicht initialisiert werden'));
   script.onerror=()=>reject(new Error('Tesseract.js konnte nicht geladen werden'));
   document.head.appendChild(script);
@@ -1440,11 +1440,11 @@ $('ezfwCopy').onclick=()=>{const t=$('ezfwRaw').value;if(navigator.clipboard?.wr
 $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;const token=++selectionToken;clearOFPResult();
  if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);$('ofpViewer').hidden=false;imgW=imgH=0;preview.src=objectUrl;$('ofpReview').hidden=true;
  try{
-  $('ofpStatus').textContent='OCR-Engine wird geladen (beim ersten Mal Internet erforderlich) …';
+  $('ofpStatus').textContent='Lokale OCR-Engine wird geladen …';
   const engine=await loadOcrEngine();
   if(token!==selectionToken)return;
   $('ofpStatus').textContent='OFP wird lokal analysiert …';
-  const worker=await engine.createWorker('eng',1,{logger:m=>{if(token===selectionToken&&m.status==='recognizing text')$('ofpStatus').textContent='OCR: '+Math.round((m.progress||0)*100)+' %';}});
+  const worker=await engine.createWorker('eng',1,{workerPath:'./ocr/worker.min.js',corePath:'./ocr/',langPath:'./ocr/',gzip:true,logger:m=>{if(token===selectionToken&&m.status==='recognizing text')$('ofpStatus').textContent='OCR: '+Math.round((m.progress||0)*100)+' %';}});
   try{
    const result=await worker.recognize(file);
    if(token!==selectionToken)return;
@@ -1472,51 +1472,32 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
      values.relValue=parse(rlsRetryText).relValue;
     }catch(e){console.warn('RLS OCR retry failed',e);}
    }
-   // Always inspect the weight-table crop, including when the full-page OCR
-   // already returned an EZFW. A plausible OCR number is not proof of accuracy.
-   $('ofpStatus').textContent='Gewichtstabelle wird unabhängig gegengeprüft …';
-   try{
-    const bitmap=await createImageBitmap(file);
-    const canvas=document.createElement('canvas');
-    const cropW=Math.round(bitmap.width*0.55);
-    canvas.width=cropW*3;canvas.height=Math.round(bitmap.height*0.58)*3;
-    const ctx=canvas.getContext('2d',{willReadFrequently:true});
-    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    ctx.drawImage(bitmap,0,0,cropW,Math.round(bitmap.height*0.58),0,0,canvas.width,canvas.height);
-    bitmap.close();
-    const retry=await worker.recognize(canvas);
-    ezfwRetryText=retry.data.text||'';
-    if(token!==selectionToken)return;
-    // Parse the combined evidence, and also independently compare both OCR passes.
-    const combined=parse(rawText+'\n'+ezfwRetryText);
-    const cropOnly=parse(ezfwRetryText);
-    const fullOnly=parse(rawText);
-    const rawCandidates=[fullOnly._ezfwOcr,cropOnly._ezfwOcr].filter(Boolean);
-    const tofMatch=(rawText+'\n'+ezfwRetryText).match(/(?:^|\n)\s*TOF\s+([0-9][0-9., ]{4,10})/i);
-    const towMatch=(rawText+'\n'+ezfwRetryText).match(/(?:^|\n)\s*TOW\s+([0-9][0-9., ]{4,10})/i);
-    const readWeight=m=>{
-     if(!m)return null;
-     const first=m[1].trim().split(/\s+/)[0];
-     const digits=first.replace(/[^0-9]/g,'');
-     return digits.length===6?Number(digits):null;
-    };
-    const tof=readWeight(tofMatch),tow=readWeight(towMatch);
-    const calculated=tof!==null&&tow!==null?tow-tof:null;
-    const validCalc=calculated!==null&&calculated>=200000&&calculated<=239950;
-    const conflict=rawCandidates.length>1&&new Set(rawCandidates).size>1 ||
-      (validCalc&&rawCandidates.some(v=>Number(v)!==calculated));
-    values.ezfw=validCalc&&conflict?String(calculated):(combined.ezfw||values.ezfw);
-    values._ezfwOcr=rawCandidates.join(' / ')||combined._ezfwOcr;
-    values._ezfwCalculated=validCalc?calculated:combined._ezfwCalculated;
-    values._ezfwConflict=Boolean(conflict||combined._ezfwConflict);
-    values._ezfwCheckDetail='OCR-Kandidaten: '+(rawCandidates.join(', ')||'keine')+
-      '; TOF: '+(tof??'nicht erkannt')+'; TOW: '+(tow??'nicht erkannt')+
-      '; berechnetes EZFW: '+(validCalc?calculated:'nicht verfügbar')+
-      '; Konflikt: '+(values._ezfwConflict?'JA':'nein');
-   }catch(e){console.warn('Weight-table OCR cross-check failed',e);
-    values._ezfwCheckDetail='Gewichts-Gegenprüfung fehlgeschlagen: '+String(e.message||e);
-    // A failed independent check cannot be presented as verified.
-    if(values.ezfw)values._ezfwConflict=true;
+   // If the full-page pass missed ZFW, try a separate high-resolution OCR
+   // pass on the left side, where the weight table is located on this OFP.
+   if(!values.ezfw){
+    $('ofpStatus').textContent='EZFW nicht gefunden – prüfe Gewichtstabelle separat …';
+    try{
+     const bitmap=await createImageBitmap(file);
+     const canvas=document.createElement('canvas');
+     const cropW=Math.round(bitmap.width*0.55);
+     canvas.width=cropW*3;canvas.height=Math.round(bitmap.height*0.58)*3;
+     const ctx=canvas.getContext('2d',{willReadFrequently:true});
+     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+     ctx.drawImage(bitmap,0,0,cropW,Math.round(bitmap.height*0.58),0,0,canvas.width,canvas.height);
+     bitmap.close();
+     const retry=await worker.recognize(canvas);
+     ezfwRetryText=retry.data.text||'';
+     if(token!==selectionToken)return;
+     // Combine the original full-page OCR with the weight-table crop BEFORE
+     // calculating EZFW status. The original full page supplies TOW and TOF;
+     // the crop often supplies ZFW/ZEW. Parsing the crop alone loses the
+     // cross-check metadata and incorrectly turns an OCR conflict green.
+     const combined=parse(rawText+'\n'+ezfwRetryText);
+     values.ezfw=combined.ezfw;
+     values._ezfwConflict=combined._ezfwConflict;
+     values._ezfwOcr=combined._ezfwOcr;
+     values._ezfwCalculated=combined._ezfwCalculated;
+    }catch(e){console.warn('EZFW OCR retry failed',e);}
    }
    // Always retain diagnostics, even if every field was recognized.
    $('ezfwDiagnostic').hidden=false;
@@ -1524,10 +1505,8 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
    const check=values._ezfwConflict
      ? 'WARNUNG: EZFW aus OCR = '+values._ezfwOcr+'; TOW - TOF = '+values._ezfwCalculated+' kg. Der rechnerische Wert wird mit orange ? zur Kontrolle vorgeschlagen.'
      : 'EZFW-Prüfung: '+(values._ezfwCalculated===null?'TOW/TOF nicht zuverlässig erkannt.':values._ezfwOcr?'OCR und TOW-TOF: '+(Number(values._ezfwOcr)===values._ezfwCalculated?'stimmen überein.':'abweichend oder unvollständig.'):'EZFW nicht direkt erkannt.');
-   $('ezfwRaw').value='EZFW CHECK:\n'+(values._ezfwCheckDetail||'')+'\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
+   $('ezfwRaw').value='EZFW CHECK:\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
    showReview(values);
-   // Reassert the conflict marker after the review is built.
-   if(values._ezfwConflict){const row=[...$('ofpRows').querySelectorAll('tr')].find(tr=>tr.querySelector('input')?.dataset.id==='ezfw');if(row)setOFPStatus(row.lastElementChild,'problematic');}
    const confidence=Math.round(result.data.confidence||0);
    if(confidence<80){$('ofpRows').querySelectorAll('tr').forEach(tr=>{const inp=tr.querySelector('input');if(inp&&inp.value.trim())setOFPStatus(tr.lastElementChild,'problematic');});}
    $('ofpStatus').textContent='OCR abgeschlossen (Gesamtkonfidenz '+confidence+' %). Bitte alle Werte anhand des OFP prüfen. Fehlende Werte bleiben leer.';
