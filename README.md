@@ -1,4 +1,4 @@
-Fuel Calculator v1.31.8 — Offline OCR
+Fuel Calculator v1.31.9 — Offline OCR
 
 GitHub Pages: alle Dateien und den Ordner ocr/ zusammen hochladen. Nach vollständigem ersten Laden kann die installierte PWA ohne Internet OFPs auswerten.
 
@@ -21,3 +21,5 @@ Version 1.31.6: OCR-Vergleich zeigt bestehende REFERENCE-Werte, neue Werte und v
 Version 1.31.7: Keine Release-Differenz; positive Differenzen rot, negative grün; kg bzw. h als Einheit; Eingabefelder für neue Werte auf 50 % Breite reduziert.
 
 Version 1.31.8: OCR-Statusspalte OCR statt Punkt, numerische Werte rechtsbuendig, Einheiten bei alten und neuen Werten.
+
+Version 1.31.9: OCR-Vergleichsspalten Alt, Delta, Neu, OCR; Alt und Delta linksbuendig; einheitlich ausgerichtete Neu-Eingabefelder mit festen Einheiten-Spalten.
