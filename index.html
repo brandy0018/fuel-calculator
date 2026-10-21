@@ -700,9 +700,9 @@
 
 /* v1.31.9: Stable input alignment and reordered comparison columns. */
 .ofp-review-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.ofp-review-scroll .ofp-table{min-width:580px}
+.ofp-review-scroll .ofp-table{min-width:660px}
 .ofp-review-scroll .ofp-table td:first-child{width:auto}
-.ofp-review-scroll .ofp-table td:nth-child(4){min-width:112px}
+.ofp-review-scroll .ofp-table td:nth-child(4){min-width:182px}
 .ofp-review-scroll .ofp-table td:nth-child(4) input{width:100%;min-width:0;box-sizing:border-box;padding:7px 2px;font-size:13px}
 .ofp-old{white-space:nowrap;color:#c3ced9;font-variant-numeric:tabular-nums}
 .ofp-delta{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
@@ -718,14 +718,15 @@
 .ofp-review-scroll .ofp-table td:nth-child(2),
 .ofp-review-scroll .ofp-table th:nth-child(3),
 .ofp-review-scroll .ofp-table td:nth-child(3){text-align:left}
+.ofp-review-scroll .ofp-table th:nth-child(4){text-align:left}
 /* A fixed two-column grid keeps every input in exactly the same horizontal position,
    regardless of whether the unit is kg, h or empty (Release). */
-.ofp-review-scroll .ofp-table td:nth-child(4) .ofp-new-wrap{display:grid;grid-template-columns:70px 22px;align-items:center;justify-content:end;column-gap:4px;white-space:nowrap}
-.ofp-review-scroll .ofp-table td:nth-child(4) input{text-align:right;width:70px;max-width:70px;min-width:0}
+.ofp-review-scroll .ofp-table td:nth-child(4) .ofp-new-wrap{display:grid;grid-template-columns:140px 22px;align-items:center;justify-content:end;column-gap:4px;white-space:nowrap}
+.ofp-review-scroll .ofp-table td:nth-child(4) input{text-align:right;width:140px;max-width:140px;min-width:0}
 .ofp-review-scroll .ofp-table td:nth-child(4) .ofp-new-unit{text-align:left;width:22px}
 .ofp-new-unit{font-size:12px;color:#c3ced9;white-space:nowrap}
-@media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:570px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.9 · Last update: 21.10.2026</div></div><div class="top-actions">
+@media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:660px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.0 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -859,7 +860,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.31.9'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.32.0'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
