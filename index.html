@@ -663,7 +663,7 @@
 #ofpPreview{position:absolute;display:block;max-width:none;max-height:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
 .ofp-zoom-hint{font-size:11px;color:#b9c8d2;padding:6px 9px}
 
-/* v1.30.2: OFP comparison on narrow screens */
+/* v1.30.6: OFP comparison on narrow screens */
 .ofp-dialog{width:min(920px,100%)}
 #ofpViewer{position:sticky;top:0;z-index:2;box-shadow:0 6px 18px #0009}
 #ofpStage{height:min(38vh,330px);min-height:170px}
@@ -685,14 +685,19 @@
  .ofp-table input{min-width:0;font-size:16px;padding:7px}
  .ofp-table td:first-child{width:39%}
 }
-/* v1.30.2: compact, accessible OCR status icons */
+/* v1.30.7: compact jump-to-field controls */
+.ofp-table td.ofp-jump-cell,.ofp-table th.ofp-jump-cell{width:52px;text-align:center;padding-left:2px;padding-right:2px}
+.ofp-jump{font-size:10px;font-weight:700;letter-spacing:.15px;padding:7px 4px;min-height:32px;min-width:47px;color:#dcecf8;background:#314454;border:1px solid #698198;border-radius:6px;cursor:pointer}
+.ofp-jump:active{background:#47637a}
+@media(max-width:600px){.ofp-table td:first-child{width:32%}.ofp-table td.ofp-jump-cell,.ofp-table th.ofp-jump-cell{width:48px}.ofp-jump{min-width:44px;font-size:10px;padding:6px 2px}}
+/* v1.30.6: compact, accessible OCR status icons */
 .ofp-table td:last-child,.ofp-table th:last-child{width:38px;text-align:center;padding-left:2px;padding-right:2px}
 .ofp-ocr-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:18px;font-weight:800;line-height:1}
 .ofp-ocr-icon.recognized{color:#3ed38a}
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.30.2 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.30.11 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -810,7 +815,8 @@
  <div id="ofpStatus" class="ofp-note" aria-live="polite"></div>
  <textarea id="ofpText" hidden aria-hidden="true" tabindex="-1"></textarea>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpDemo">Demo LX176</button></div>
- <div id="ofpReview" hidden><p id="ofpDemoNote" class="ofp-demo-note" hidden>DEMO: Werte sind fest hinterlegt, nicht per OCR aus dem Bild erkannt.</p><p class="ofp-note">Bitte jeden erkannten Wert mit dem OFP vergleichen. ✓ grün = erkannt · ✕ rot = nicht erkannt · ? orange = problematisch. RTOW wird nie übernommen.</p><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Wert / editierbar</th><th aria-label="OCR-Status">●</th></tr></thead><tbody id="ofpRows"></tbody></table>
+ <details id="ezfwDiagnostic" hidden style="margin:10px 0;padding:10px;border:1px solid #b57b31;border-radius:8px"><summary>OCR-Diagnose: Rohtext anzeigen</summary><p class="ofp-note">Zeigt den vollständigen OCR-Rohtext sowie gegebenenfalls den separat erkannten Gewichtsbereich und Hinweise zur EZFW-Prüfung.</p><textarea id="ezfwRaw" readonly rows="9" style="width:100%;font-family:monospace;font-size:12px"></textarea><button type="button" id="ezfwCopy">Diagnose kopieren</button></details>
+ <div id="ofpReview" hidden><p id="ofpDemoNote" class="ofp-demo-note" hidden>DEMO: Werte sind fest hinterlegt, nicht per OCR aus dem Bild erkannt.</p><p class="ofp-note">Bitte jeden erkannten Wert mit dem OFP vergleichen. ✓ grün = erkannt · ✕ rot = nicht erkannt · ? orange = problematisch. RTOW wird nie übernommen.</p><table class="ofp-table"><thead><tr><th>REFERENCE</th><th>Wert / editierbar</th><th class="ofp-jump-cell" aria-label="OFP-Ausschnitt"></th><th aria-label="OCR-Status">●</th></tr></thead><tbody id="ofpRows"></tbody></table>
  <label class="ofp-note"><input type="checkbox" id="ofpConfirm"> Ich habe alle Werte mit dem OFP verglichen.</label>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpApply">Bestätigte Werte übernehmen</button></div></div>
  <div class="ofp-actions"><button type="button" class="btn" id="ofpClose">Schließen</button></div>
@@ -827,7 +833,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.30.2';
+const APP_VERSION='1.30.11';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1239,38 +1245,66 @@ BLOCK 111000 13.29`;
 function parse(text){
  const t=text.toUpperCase().replace(/[’']/g,'').replace(/\r/g,'');
  const lines=t.split('\n').map(x=>x.replace(/\s+/g,' ').trim());
- const header=lines.find(x=>/\bRLS\s*\d+\b/.test(x))||'';
+ const header=lines.find(x=>/\bRLS\s*[:.\-]?\s*\d{1,3}\b/.test(x))||'';
  const basicStart=lines.findIndex(x=>/^BASIC\b/.test(x));
  const basicEnd=lines.findIndex((x,i)=>i>basicStart && /^(?:FUEL COST|OPTIONAL DEST ALTN|NEXT LEG|CMD)\b/.test(x));
  const basic=basicStart>=0?lines.slice(basicStart,basicEnd<0?lines.length:basicEnd):[];
  const find=(list,pattern)=>list.find(x=>pattern.test(x))||'';
  const number=(line,pattern)=>{const m=line.match(pattern);return m?m[1]:''};
- // OCR often separates ZFW letters, inserts punctuation, or reads Z as 2.
+ // OCR often reads ZFW as ZEW (F→E), separates letters, or reads Z as 2.
  // Only accept the first weight on an explicitly labelled ZFW line.
- const zfw=lines.find(x=>/^(?:E\s*)?(?:Z|2)\s*F\s*W\b[\s:.-]*[0-9OIlS]/.test(x))||'';
+ const zfwCandidate=(source)=>{
+  const ls=String(source).toUpperCase().replace(/\r/g,'').split('\n');
+  for(let i=0;i<ls.length;i++){
+   const line=ls[i].replace(/[|]/g,'I').trim();
+   // OCR may introduce spaces, punctuation, or a leading column marker.
+   const label=/(?:^|[^A-Z0-9])(?:E\s*)?(?:Z|2)\s*[FE]\s*W(?=$|[^A-Z])/.exec(line);
+   if(!label)continue;
+   const after=line.slice(label.index+label[0].length);
+   const candidates=[after,after+' '+(ls[i+1]||'')];
+   for(const candidate of candidates){
+    // Accept digit-like OCR substitutions, but do not concatenate the MZFW column.
+    const m=/(?:^|[^0-9A-Z])([0-9OILSB]{6})(?=$|[^0-9OILSB])/i.exec(candidate);
+    if(!m)continue;
+    const n=m[1].replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8');
+    if(/^\d{6}$/.test(n)&&+n>=200000&&+n<=239950)return n;
+   }
+  }
+  return '';
+ };
+ // Independent weight-balance check: ZFW + TOF = TOW.
+ // It catches plausible-looking OCR digit substitutions (e.g. 216925 vs 216525).
+ const weightLine=(label)=>lines.find(x=>new RegExp('^'+label+'\\s+').test(x))||'';
+ const weightValue=(label)=>{
+  const row=weightLine(label);
+  const m=row.match(new RegExp('^'+label+'\\s+([0-9][0-9., ]{4,9})'));
+  if(!m)return null;
+  const digits=m[1].replace(/[^0-9]/g,'').slice(0,6);
+  return /^\d{6}$/.test(digits)?Number(digits):null;
+ };
+ const rawZfw=zfwCandidate(text);
+ const tof=weightValue('TOF'),tow=weightValue('TOW');
+ const inferredZfw=tof!==null&&tow!==null?tow-tof:null;
+ const weightConflict=Boolean(rawZfw&&inferredZfw!==null&&inferredZfw>=200000&&inferredZfw<=239950&&Number(rawZfw)!==inferredZfw);
  const trip=find(basic,/^TRIP\s+\d/);
  const altn=find(basic,/^ALTN\b/);
  const tripMatch=trip.match(/^TRIP\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/);
  return {
- ezfw:(()=>{
-   // Capture precisely the FIRST six-digit ZFW weight, never the following MZFW.
-   // The previous regex greedily captured both values (e.g. 225713 239950S).
-   const m=zfw.match(/^(?:E\s*)?(?:Z|2)\s*F\s*W\b[\s:.-]*([0-9OILS]{6})(?![0-9OILS])/);
-   if(!m)return '';
-   const n=m[1].replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5');
-   return /^\d{6}$/.test(n)&&Number(n)<=239950&&Number(n)>=100000?n:'';
- })(),
+ ezfw:weightConflict?String(inferredZfw):rawZfw,
+ _ezfwConflict:weightConflict,
+ _ezfwOcr:rawZfw,
+ _ezfwCalculated:inferredZfw,
  taxi:number(find(basic,/^TAXI\s+\d/),/^TAXI\s+(\d{1,6})\b/),
  tripFuel:tripMatch?.[1]||'',
  tripTime:tripMatch?tripMatch[2].padStart(2,'0')+':'+tripMatch[3]:'',
  minBlock:number(find(basic,/^MIN\s+BLOCK\s+\d/),/^MIN\s+BLOCK\s+(\d{2,6})\b/),
  finalFuel:number(find(basic,/^FINAL\s+RES\s+\d/),/^FINAL\s+RES\s+(\d{2,6})\b/),
  altFuel: /^ALTN\s+(?:NIL|NONE)\b/.test(altn)?'0':number(altn,/^ALTN(?:\s+[A-Z]{3,4})?\s+(\d{1,6})\b/),
- relValue:number(header,/\bRLS\s*(\d+)\b/)
+ relValue:number(header,/\bRLS\s*[:.\-]?\s*(\d{1,3})\b/)
  };
 }
 let detected={},objectUrl=null,selectionToken=0,reviewReady=false;
-function clearOFPResult(){$('ofpDemoNote').hidden=true;detected={};reviewReady=false;$('ofpText').value='';$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
+function clearOFPResult(){$('ezfwDiagnostic').hidden=true;$('ezfwDiagnostic').open=false;$('ezfwRaw').value='';$('ofpDemoNote').hidden=true;detected={};reviewReady=false;$('ofpText').value='';$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
 const stage=$('ofpStage'),preview=$('ofpPreview');
 let fit=1,zoom=1,panX=0,panY=0,imgW=0,imgH=0,lastTap=0;
 const pointers=new Map();let gesture=null;
@@ -1292,23 +1326,59 @@ function release(e){if(!pointers.has(e.pointerId))return;const wasTap=pointers.s
 stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);
 window.addEventListener('resize',()=>{if(imgW&& !$('ofpViewer').hidden)initialOFPView();});
 function ofpDigits(raw){return String(raw??'').replace(/\./g,'');}
+// Approximate field locations in the standardized A4 OFP layout.
+// Coordinates are relative to the paper, not the screenshot surrounding it.
+const ofpTargets={
+ relValue:[.51,.026],ezfw:[.22,.413],taxi:[.21,.548],
+ tripFuel:[.21,.573],tripTime:[.35,.573],altFuel:[.22,.624],
+ finalFuel:[.21,.707],minBlock:[.21,.730]
+};
+function ofpPaperTop(){
+ // Screenshots may include an app toolbar above the white OFP.
+ const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+ if(!ctx||!imgW)return 0;
+ canvas.width=12;canvas.height=240;
+ try{
+  ctx.drawImage(preview,0,0,imgW,imgH,0,0,12,240);
+  const data=ctx.getImageData(0,0,12,240).data;
+  for(let y=0;y<140;y++){
+   let count=0;
+   for(let x=3;x<9;x++){const i=(y*12+x)*4;if(data[i]>225&&data[i+1]>225&&data[i+2]>225)count++;}
+   if(count>=5)return Math.max(0,(y-1)/240);
+  }
+ }catch(e){}
+ return 0;
+}
+function zoomToOFPField(id){
+ if(!imgW||!ofpTargets[id])return;
+ const [x,y]=ofpTargets[id];
+ const top=ofpPaperTop();
+ // 800% of fitted image for ZOOM buttons; initial view remains 350%.
+ zoom=fit*8;
+ const targetX=imgW*x,targetY=imgH*(top+y*(1-top));
+ // Keep the chosen line around the middle of the visible OFP viewport.
+ panX=stage.clientWidth*.47-targetX*zoom;
+ panY=stage.clientHeight*.50-targetY*zoom;
+ drawImage();
+}
 function formatOFPValue(id,raw){const value=String(raw??'').trim();if(!value||id==='relValue'||id==='tripTime')return value;const digits=ofpDigits(value);return /^\d{1,6}$/.test(digits)?digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):value;}
 function classifyOFPField(id,raw,data){
  raw=id==='relValue'||id==='tripTime'?raw:ofpDigits(raw);
  if(!raw)return 'missing';
- if(id==='relValue')return /^\d{1,3}$/.test(raw)?'recognized':'problematic';
+ if(id==='ezfw' && (data._ezfwConflict || (!data._ezfwOcr && raw)))return 'problematic';
+ if(id==='relValue')return /^\d{1,3}$/.test(raw)&&Number(raw)>=1&&Number(raw)<=15?'recognized':'problematic';
  if(id==='tripTime'){
   const match=raw.match(/^(\d{1,2}):(\d{2})$/);
   return match&&Number(match[1])<=24&&Number(match[2])<60?'recognized':'problematic';
  }
  if(!/^\d{1,6}$/.test(raw))return 'problematic';
  const value=Number(raw);
- if(id==='ezfw' && (value<100000||value>239950))return 'problematic';
- if(id==='taxi' && (value<100||value>10000))return 'problematic';
- if(id==='tripFuel' && (value<1000||value>154229))return 'problematic';
- if(id==='minBlock' && (value<1000||value>154229))return 'problematic';
- if(id==='finalFuel' && (value<100||value>10000))return 'problematic';
- if(id==='altFuel' && value>30000)return 'problematic';
+ if(id==='ezfw' && (value<200000||value>239950))return 'problematic';
+ if(id==='taxi' && (value<100||value>1000))return 'problematic';
+ if(id==='tripFuel' && (value<60000||value>154229))return 'problematic';
+ if(id==='minBlock' && (value<75000||value>154229))return 'problematic';
+ if(id==='finalFuel' && (value<2750||value>3500))return 'problematic';
+ if(id==='altFuel' && (value<2000||value>10000))return 'problematic';
  if(id==='minBlock' && Number(data.tripFuel)>0 && value<Number(data.tripFuel))return 'problematic';
  return 'recognized';
 }
@@ -1324,7 +1394,7 @@ function setOFPStatus(statusCell,state){
 }
 function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=false;$('ofpRows').replaceChildren();
  fields.forEach(([id,label])=>{
-  const tr=document.createElement('tr'),td=document.createElement('td'),cell=document.createElement('td'),status=document.createElement('td'),input=document.createElement('input');
+  const tr=document.createElement('tr'),td=document.createElement('td'),cell=document.createElement('td'),jumpCell=document.createElement('td'),status=document.createElement('td'),input=document.createElement('input');
   td.textContent=label;
   input.value=formatOFPValue(id,data[id]??'');
   input.dataset.id=id;
@@ -1338,14 +1408,19 @@ function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=
    // Manuell geänderte Werte müssen vor der Übernahme nochmals geprüft werden.
    setOFPStatus(status,raw?'problematic':'missing');
   });
-  cell.append(input);tr.append(td,cell,status);$('ofpRows').append(tr);
+  cell.append(input);
+  jumpCell.className='ofp-jump-cell';
+  const jump=document.createElement('button');jump.type='button';jump.className='ofp-jump';jump.textContent='ZOOM';
+  jump.setAttribute('aria-label','OFP-Bereich für '+label+' anzeigen');jump.title='Zu '+label+' im OFP springen';
+  jump.addEventListener('click',()=>zoomToOFPField(id));jumpCell.append(jump);
+  tr.append(td,cell,jumpCell,status);$('ofpRows').append(tr);
  });
  $('ofpReview').hidden=false;$('ofpConfirm').checked=false;
 }
 $('ofpOpenBtn').onclick=()=>{$('ofpModal').hidden=false;$('ofpStatus').textContent='';};
 $('ofpText').addEventListener('input',clearReviewOnly);
 $('ofpClose').onclick=()=>{$('ofpModal').hidden=true;};
-$('ofpDemo').onclick=()=>{selectionToken++;clearOFPResult();$('ofpFile').value='';if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}imgW=imgH=0;$('ofpViewer').hidden=false;preview.src=demoImage;$('ofpText').value=sample;showReview(parse(sample));$('ofpDemoNote').hidden=false;$('ofpStatus').textContent='LX176: Original-OFP und Demo-Werte zum visuellen Vergleich (keine OCR).';};
+$('ofpDemo').onclick=()=>{selectionToken++;clearOFPResult();$('ofpFile').value='';if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}imgW=imgH=0;$('ofpViewer').hidden=false;preview.src=demoImage;$('ofpText').value=sample;showReview(parse(sample));$('ezfwDiagnostic').hidden=false;$('ezfwRaw').value='DEMO LX176 (kein OCR-Lauf)\n\n'+sample;$('ofpDemoNote').hidden=false;$('ofpStatus').textContent='LX176: Original-OFP und Demo-Werte zum visuellen Vergleich (keine OCR).';};
 
 function clearReviewOnly(){detected={};reviewReady=false;$('ofpRows').replaceChildren();$('ofpReview').hidden=true;$('ofpConfirm').checked=false;$('ofpApply').disabled=true;}
 let ocrEnginePromise=null;
@@ -1361,6 +1436,7 @@ function loadOcrEngine(){
  }).catch(err=>{ocrEnginePromise=null;throw err;});
  return ocrEnginePromise;
 }
+$('ezfwCopy').onclick=()=>{const t=$('ezfwRaw').value;if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>{$('ezfwRaw').select();});else $('ezfwRaw').select();};
 $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;const token=++selectionToken;clearOFPResult();
  if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);$('ofpViewer').hidden=false;imgW=imgH=0;preview.src=objectUrl;$('ofpReview').hidden=true;
  try{
@@ -1375,25 +1451,83 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
    const rawText=result.data.text||'';
    $('ofpText').value=rawText;
    const values=parse(rawText);
-   // If the full-page pass missed ZFW, try a separate high-resolution OCR
-   // pass on the left side, where the weight table is located on this OFP.
-   if(!values.ezfw){
-    $('ofpStatus').textContent='EZFW nicht gefunden – prüfe Gewichtstabelle separat …';
+   let ezfwRetryText='';
+   let rlsRetryText='';
+   // The full-page OCR sometimes misses the tiny RLS header entirely.
+   // Read the header as a separate, enlarged crop, without relying on EZFW retry.
+   if(!values.relValue){
+    $('ofpStatus').textContent='RLS nicht gefunden – prüfe OFP-Header separat …';
     try{
      const bitmap=await createImageBitmap(file);
+     const cropHeight=Math.max(1,Math.round(bitmap.height*0.22));
      const canvas=document.createElement('canvas');
-     const cropW=Math.round(bitmap.width*0.55);
-     canvas.width=cropW*3;canvas.height=Math.round(bitmap.height*0.58)*3;
-     const ctx=canvas.getContext('2d',{willReadFrequently:true});
+     canvas.width=bitmap.width*3;canvas.height=cropHeight*3;
+     const ctx=canvas.getContext('2d');
      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-     ctx.drawImage(bitmap,0,0,cropW,Math.round(bitmap.height*0.58),0,0,canvas.width,canvas.height);
+     ctx.drawImage(bitmap,0,0,bitmap.width,cropHeight,0,0,canvas.width,canvas.height);
      bitmap.close();
      const retry=await worker.recognize(canvas);
+     rlsRetryText=retry.data.text||'';
      if(token!==selectionToken)return;
-     values.ezfw=parse(retry.data.text||'').ezfw;
-    }catch(e){console.warn('EZFW OCR retry failed',e);}
+     values.relValue=parse(rlsRetryText).relValue;
+    }catch(e){console.warn('RLS OCR retry failed',e);}
    }
+   // Always inspect the weight-table crop, including when the full-page OCR
+   // already returned an EZFW. A plausible OCR number is not proof of accuracy.
+   $('ofpStatus').textContent='Gewichtstabelle wird unabhängig gegengeprüft …';
+   try{
+    const bitmap=await createImageBitmap(file);
+    const canvas=document.createElement('canvas');
+    const cropW=Math.round(bitmap.width*0.55);
+    canvas.width=cropW*3;canvas.height=Math.round(bitmap.height*0.58)*3;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(bitmap,0,0,cropW,Math.round(bitmap.height*0.58),0,0,canvas.width,canvas.height);
+    bitmap.close();
+    const retry=await worker.recognize(canvas);
+    ezfwRetryText=retry.data.text||'';
+    if(token!==selectionToken)return;
+    // Parse the combined evidence, and also independently compare both OCR passes.
+    const combined=parse(rawText+'\n'+ezfwRetryText);
+    const cropOnly=parse(ezfwRetryText);
+    const fullOnly=parse(rawText);
+    const rawCandidates=[fullOnly._ezfwOcr,cropOnly._ezfwOcr].filter(Boolean);
+    const tofMatch=(rawText+'\n'+ezfwRetryText).match(/(?:^|\n)\s*TOF\s+([0-9][0-9., ]{4,10})/i);
+    const towMatch=(rawText+'\n'+ezfwRetryText).match(/(?:^|\n)\s*TOW\s+([0-9][0-9., ]{4,10})/i);
+    const readWeight=m=>{
+     if(!m)return null;
+     const first=m[1].trim().split(/\s+/)[0];
+     const digits=first.replace(/[^0-9]/g,'');
+     return digits.length===6?Number(digits):null;
+    };
+    const tof=readWeight(tofMatch),tow=readWeight(towMatch);
+    const calculated=tof!==null&&tow!==null?tow-tof:null;
+    const validCalc=calculated!==null&&calculated>=200000&&calculated<=239950;
+    const conflict=rawCandidates.length>1&&new Set(rawCandidates).size>1 ||
+      (validCalc&&rawCandidates.some(v=>Number(v)!==calculated));
+    values.ezfw=validCalc&&conflict?String(calculated):(combined.ezfw||values.ezfw);
+    values._ezfwOcr=rawCandidates.join(' / ')||combined._ezfwOcr;
+    values._ezfwCalculated=validCalc?calculated:combined._ezfwCalculated;
+    values._ezfwConflict=Boolean(conflict||combined._ezfwConflict);
+    values._ezfwCheckDetail='OCR-Kandidaten: '+(rawCandidates.join(', ')||'keine')+
+      '; TOF: '+(tof??'nicht erkannt')+'; TOW: '+(tow??'nicht erkannt')+
+      '; berechnetes EZFW: '+(validCalc?calculated:'nicht verfügbar')+
+      '; Konflikt: '+(values._ezfwConflict?'JA':'nein');
+   }catch(e){console.warn('Weight-table OCR cross-check failed',e);
+    values._ezfwCheckDetail='Gewichts-Gegenprüfung fehlgeschlagen: '+String(e.message||e);
+    // A failed independent check cannot be presented as verified.
+    if(values.ezfw)values._ezfwConflict=true;
+   }
+   // Always retain diagnostics, even if every field was recognized.
+   $('ezfwDiagnostic').hidden=false;
+   const relevant=(text)=>String(text).split('\n').filter(line=>/\b(?:ZFW|ZEW|2FW|TOF|TOW|LW|REMF|RLS)\b/i.test(line)).slice(0,30).join('\n');
+   const check=values._ezfwConflict
+     ? 'WARNUNG: EZFW aus OCR = '+values._ezfwOcr+'; TOW - TOF = '+values._ezfwCalculated+' kg. Der rechnerische Wert wird mit orange ? zur Kontrolle vorgeschlagen.'
+     : 'EZFW-Prüfung: '+(values._ezfwCalculated===null?'TOW/TOF nicht zuverlässig erkannt.':values._ezfwOcr?'OCR und TOW-TOF: '+(Number(values._ezfwOcr)===values._ezfwCalculated?'stimmen überein.':'abweichend oder unvollständig.'):'EZFW nicht direkt erkannt.');
+   $('ezfwRaw').value='EZFW CHECK:\n'+(values._ezfwCheckDetail||'')+'\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
    showReview(values);
+   // Reassert the conflict marker after the review is built.
+   if(values._ezfwConflict){const row=[...$('ofpRows').querySelectorAll('tr')].find(tr=>tr.querySelector('input')?.dataset.id==='ezfw');if(row)setOFPStatus(row.lastElementChild,'problematic');}
    const confidence=Math.round(result.data.confidence||0);
    if(confidence<80){$('ofpRows').querySelectorAll('tr').forEach(tr=>{const inp=tr.querySelector('input');if(inp&&inp.value.trim())setOFPStatus(tr.lastElementChild,'problematic');});}
    $('ofpStatus').textContent='OCR abgeschlossen (Gesamtkonfidenz '+confidence+' %). Bitte alle Werte anhand des OFP prüfen. Fehlende Werte bleiben leer.';
