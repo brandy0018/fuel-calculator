@@ -698,18 +698,19 @@
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
 
-/* v1.31.6: Previous OFP values and signed deltas. */
+/* v1.31.7: Previous OFP values and signed deltas. */
 .ofp-review-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .ofp-review-scroll .ofp-table{min-width:580px}
 .ofp-review-scroll .ofp-table td:first-child{width:auto}
-.ofp-review-scroll .ofp-table td:nth-child(3){min-width:94px}
+.ofp-review-scroll .ofp-table td:nth-child(3){min-width:82px}
+.ofp-review-scroll .ofp-table td:nth-child(3) input{width:50%;min-width:0;box-sizing:border-box;padding:7px 2px;font-size:13px}
 .ofp-old{white-space:nowrap;color:#c3ced9;font-variant-numeric:tabular-nums}
 .ofp-delta{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
-.ofp-delta.positive{color:#73dfaa}
-.ofp-delta.negative{color:#ffb17a}
+.ofp-delta.positive{color:#ff7777}
+.ofp-delta.negative{color:#73dfaa}
 .ofp-delta.unchanged{color:#b9c7d3}
 @media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:570px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.6 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.31.7 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -843,7 +844,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.31.6'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.31.7'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
@@ -1416,14 +1417,15 @@ function ofpOldDisplay(id,raw){
  return id==='tripTime'?hhmm(value):id==='relValue'?String(value):formatOFPValue(id,String(value));
 }
 function updateOFPDelta(id,oldRaw,newRaw,element){
+ if(id==='relValue'){element.textContent='';element.className='ofp-delta';element.title='Für Release wird keine Differenz angezeigt';return;}
  const previous=ofpComparable(id,oldRaw),current=ofpComparable(id,newRaw);
  element.className='ofp-delta';
  if(previous===null||current===null){element.textContent='—';element.title='Kein vergleichbarer alter oder neuer Wert';return;}
  const diff=current-previous;
  const magnitude=id==='tripTime'?hhmm(Math.abs(diff)):id==='relValue'?String(Math.abs(diff)):formatOFPValue(id,String(Math.abs(diff)));
- element.textContent=(diff>=0?'+':'−')+magnitude;
+ element.textContent=(diff>=0?'+':'−')+magnitude+(id==='tripTime'?' h':' kg');
  element.classList.add(diff>0?'positive':diff<0?'negative':'unchanged');
- element.title='Differenz: neuer Wert minus bisheriger Wert'+(id==='tripTime'?' (hh:mm)':'');
+ element.title='Differenz: neuer Wert minus bisheriger Wert'+(id==='tripTime'?' (Stunden:Minuten)':' (kg)');
 }
 function showReview(data){detected=data;reviewReady=true;$('ofpApply').disabled=false;$('ofpRows').replaceChildren();
  fields.forEach(([id,label])=>{
