@@ -663,7 +663,7 @@
 #ofpPreview{position:absolute;display:block;max-width:none;max-height:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
 .ofp-zoom-hint{font-size:11px;color:#b9c8d2;padding:6px 9px}
 
-/* v1.29.7: OFP comparison on narrow screens */
+/* v1.29.9: OFP comparison on narrow screens */
 .ofp-dialog{width:min(920px,100%)}
 #ofpViewer{position:sticky;top:0;z-index:2;box-shadow:0 6px 18px #0009}
 #ofpStage{height:min(38vh,330px);min-height:170px}
@@ -685,14 +685,14 @@
  .ofp-table input{min-width:0;font-size:16px;padding:7px}
  .ofp-table td:first-child{width:39%}
 }
-/* v1.29.7: compact, accessible OCR status icons */
+/* v1.29.9: compact, accessible OCR status icons */
 .ofp-table td:last-child,.ofp-table th:last-child{width:38px;text-align:center;padding-left:2px;padding-right:2px}
 .ofp-ocr-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:18px;font-weight:800;line-height:1}
 .ofp-ocr-icon.recognized{color:#3ed38a}
 .ofp-ocr-icon.missing{color:#ff7777}
 .ofp-ocr-icon.problematic{color:#ffb34d}
 @media(max-width:600px){.ofp-table td:last-child,.ofp-table th:last-child{width:28px}.ofp-ocr-icon{width:23px;height:23px}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.7 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.29.9 · Last update: 21.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -827,7 +827,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.29.7';
+const APP_VERSION='1.29.9';
 const STORAGE_KEY='fuelcalc-state-v'+APP_VERSION;
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
@@ -1119,7 +1119,7 @@ function loadTestValues(){
   calc();
   saveState();
 }
-function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;document.querySelectorAll('input').forEach(x=>x.value='');
+function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;document.querySelectorAll('.ref-ocr-new,.ref-ocr-old').forEach(x=>x.classList.remove('ref-ocr-new','ref-ocr-old'));document.querySelectorAll('input').forEach(x=>x.value='');
   $('relValue').value='RLS 1';holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc()}
 $('ovrdAddTime').addEventListener('input',()=>{
   if(!overrideMode || syncing)return;
@@ -1270,7 +1270,7 @@ function constrain(){const w=stage.clientWidth,h=stage.clientHeight,iw=imgW*zoom
  panY=ih<=h?(h-ih)/2:Math.min(0,Math.max(h-ih,panY));}
 function drawImage(){if(!imgW)return;constrain();preview.style.width=imgW+'px';preview.style.height=imgH+'px';preview.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;$('ofpZoomLabel').textContent=Math.round(zoom/fit*100)+'%';}
 function fitImage(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit;panX=panY=0;drawImage();}
-function initialOFPView(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit*2.5;panX=(stage.clientWidth-imgW*zoom)/2;panY=0;drawImage();}
+function initialOFPView(){if(!imgW)return;fit=Math.min(stage.clientWidth/imgW,stage.clientHeight/imgH);zoom=fit*3.5;panX=0;panY=0;drawImage();}
 function zoomAt(factor,x=stage.clientWidth/2,y=stage.clientHeight/2){if(!imgW)return;const next=Math.max(fit,Math.min(fit*8,zoom*factor));const k=next/zoom;panX=x-(x-panX)*k;panY=y-(y-panY)*k;zoom=next;drawImage();}
 $('ofpZoomIn').onclick=()=>zoomAt(1.5);$('ofpZoomOut').onclick=()=>zoomAt(1/1.5);$('ofpZoomReset').onclick=fitImage;
 preview.onload=()=>{imgW=preview.naturalWidth;imgH=preview.naturalHeight;initialOFPView();};
