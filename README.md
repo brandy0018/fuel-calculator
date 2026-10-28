@@ -1,2 +1,3 @@
-Fuel Calculator v1.32.2 — Last update: 28.10.2026
-Offline OCR. Fuelberechnung mit höherem MIN BLOCK wird gewählt. NOALTN mit numerischem Fuelwert bleibt numerisch.
+Fuel Calculator v1.32.3 | 28.10.2026
+Offline OCR. NOALTN = 0 kg; mutually exclusive REMF checkboxes; Briefing mode; reset collapse and flash.
+Upload index.html and sw.js for updates; retain ocr/ directory.

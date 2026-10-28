@@ -726,7 +726,12 @@
 .ofp-review-scroll .ofp-table td:nth-child(4) .ofp-new-unit{text-align:left;width:22px}
 .ofp-new-unit{font-size:12px;color:#c3ced9;white-space:nowrap}
 @media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:660px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.2 · Last update: 28.10.2026</div></div><div class="top-actions">
+#noAltnBtn{appearance:auto;flex:0 0 auto;width:19px;height:19px;margin:0;accent-color:#8cbad6;cursor:pointer}
+#noAltnBtn:disabled{opacity:.45;cursor:not-allowed}
+@keyframes resetFieldPulse{0%{box-shadow:0 0 0 0 rgba(140,186,214,0)}30%{box-shadow:0 0 0 3px rgba(140,186,214,.45);background:#d1e7f3}100%{box-shadow:0 0 0 0 rgba(140,186,214,0)}}
+input.reset-flash:not([readonly]){animation:resetFieldPulse .65s ease-out}
+@media(prefers-reduced-motion:reduce){input.reset-flash:not([readonly]){animation:none}}
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.3 · Last update: 28.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -734,14 +739,14 @@
   </div>
   <button class="btn" type="button" id="ofpOpenBtn" aria-label="OFP importieren" title="OFP importieren">📷 OFP</button>
   <button class="btn" type="button" id="expandAllBtn" aria-label="Alle Fenster einklappen">Collapse All</button>
-  <button class="btn" type="button" onclick="loadTestValues()">TEST</button>
+  <button class="btn" type="button" id="briefingBtn">Briefing</button>
   <button class="btn" type="button" onclick="resetAll()">Reset</button>
 </div></div>
 <div class="card"><div class="section-collapse-heading"><h2>REFERENCE</h2><button type="button" class="remf-collapse-btn" id="referenceCollapseBtn" aria-expanded="true" aria-controls="referenceBody" aria-label="REFERENCE einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div><div id="referenceBody" class="section-collapse-body"><div class="reference-grid"><div class="refbox"><label>EZFW <span class="ref-max" id="mzfwLimit">(max. 239’950)</span></label><div class="refinput"><input id="ezfw" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>RTOW <span class="ref-max" id="mtowLimit">(max. 351’534)</span></label><div class="refinput"><input id="rtow" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Taxi Fuel</label><div class="refinput"><input id="taxi" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Fuel</label><div class="refinput"><input id="tripFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Minimum Block</label><div class="refinput"><input id="minBlock" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>Trip Time</label><div class="refinput"><input id="tripTime" inputmode="numeric" placeholder="hh:mm"><span class="unit">hh:mm</span></div></div><div class="refbox"><label>FR</label><div class="refinput"><input id="finalFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div><div class="refbox"><label>ALTN</label><div class="refinput"><input id="altFuel" inputmode="decimal" placeholder="0"><span class="unit">kg</span></div></div></div></div></div>
 <section class="card remf-group" aria-label="Remaining Fuel"><div class="remf-group-heading"><h2>REMAINING FUEL</h2><button type="button" class="remf-collapse-btn" id="remfCollapseBtn" aria-expanded="true" aria-controls="remfGroupBody" aria-label="Remaining Fuel einklappen"><span class="remf-chevron" aria-hidden="true">⌄</span></button></div>
 <div id="remfGroupBody">
 <div class="remaining-grid">
-<div class="card" id="aCard"><h2>REMF · OPTION no ALTN</h2>
+<div class="card" id="aCard"><div class="remf-option-heading"><h2>REMF · OPTION no ALTN</h2><input type="checkbox" id="noAltnBtn" aria-label="Option no ALTN aktivieren" checked></div>
 <div class="fuelrow"><label>FR</label><div class="readonly">30</div><span class="unit">min</span><div class="readonly" id="finalCopyA">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>G/A</label><input id="gaTime" inputmode="decimal" placeholder="0"><span class="unit">min</span><div class="readonly" id="gaFuel">0</div><span class="unit">kg</span></div>
 <div class="fuelrow"><label>HOLD</label><input id="holdATime" inputmode="decimal" placeholder="0"><span class="unit">min</span><div class="readonly" id="holdAFuel">0</div><span class="unit">kg</span></div>
@@ -860,7 +865,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.32.2'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.32.3'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
@@ -1071,7 +1076,7 @@ function setOverrideMode(on){
 
 function pair(fuelId,timeId,rateFromTrip=false,fixedRate=0){$(fuelId).addEventListener('input',()=>{if(syncing)return;let rate=rateFromTrip?(mins($('tripTime').value)?num('tripFuel')/mins($('tripTime').value):0):fixedRate;syncing=true;$(timeId).value=rate&&num(fuelId)?hhmm(num(fuelId)/rate):'';syncing=false;calc()});$(timeId).addEventListener('input',()=>{if(syncing)return;let rate=rateFromTrip?(mins($('tripTime').value)?num('tripFuel')/mins($('tripTime').value):0):fixedRate;syncing=true;$(fuelId).value=rate&&mins($(timeId).value)?Math.round(mins($(timeId).value)*rate):'';syncing=false;calc()})}
 ['minBlock','finalFuel','gaTime','holdATime','altFuel','taxi','tripFuel','tripTime','hsFuel','ezfw','rtow','contFuel','extraFuel','extraTime','apuFuel'].forEach(id=>$(id)?.addEventListener('input',calc));
-['finalFuel','altFuel','taxi','tripFuel','hsFuel','contFuel','extraFuel','apuFuel'].forEach(id=>$(id)?.addEventListener('blur',()=>{formatNumericInput($(id));calc()}));$('minBlock').addEventListener('blur',()=>{if(num('minBlock')>154229){$('minBlock').value=fmt(154229);flashLimit('minBlock');calc()}else{formatNumericInput($('minBlock'));calc()}});$('ezfw').addEventListener('blur',()=>validateReferenceLimit('ezfw',239950,'mzfwLimit'));$('rtow').addEventListener('blur',()=>validateReferenceLimit('rtow',351534,'mtowLimit'));$('tripTime').addEventListener('blur',()=>{let v=formatTripTimeInput($('tripTime').value);$('tripTime').value=v;calc()});$('holdBTime').addEventListener('input',()=>{if(!syncing&&holdBMode==='manual'){calc()}});$('autoBtn').onchange=()=>{if(overrideMode)return;
+['finalFuel','altFuel','taxi','tripFuel','hsFuel','contFuel','extraFuel','apuFuel'].forEach(id=>$(id)?.addEventListener('blur',()=>{formatNumericInput($(id));calc()}));$('minBlock').addEventListener('blur',()=>{if(num('minBlock')>154229){$('minBlock').value=fmt(154229);flashLimit('minBlock');calc()}else{formatNumericInput($('minBlock'));calc()}});$('ezfw').addEventListener('blur',()=>validateReferenceLimit('ezfw',239950,'mzfwLimit'));$('rtow').addEventListener('blur',()=>validateReferenceLimit('rtow',351534,'mtowLimit'));$('tripTime').addEventListener('blur',()=>{let v=formatTripTimeInput($('tripTime').value);$('tripTime').value=v;calc()});$('holdBTime').addEventListener('input',()=>{if(!syncing&&holdBMode==='manual'){calc()}});$('noAltnBtn').onchange=()=>{if(overrideMode){applyHoldBMode();return;}holdBMode='auto';applyHoldBMode();calc();saveState()};$('autoBtn').onchange=()=>{if(overrideMode)return;
 if(holdBMode==='auto'){
   holdBMode='manual';
 }else{
@@ -1112,7 +1117,7 @@ $('manualRf').addEventListener('blur',()=>{
   calc();
 });
 
-$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('gaTime').readOnly=overrideMode;$('holdATime').readOnly=overrideMode||manual;$('gaTime').classList.remove('computed-input');$('holdATime').classList.toggle('computed-input',manual);$('holdBTime').readOnly=overrideMode?true:!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual&&!overrideMode);$('holdBTime').classList.toggle('computed-input',!manual||overrideMode);$('holdBFuel').classList.add('computed-input');$('autoBtn').checked=manual;applyOverrideVisuals()}function changeRel(delta){
+$('extraFuel').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraTime').value=rate&&num('extraFuel')?Math.round(num('extraFuel')/rate):'';syncing=false;calc()});$('extraTime').addEventListener('input',()=>{if(syncing)return;let tm=mins($('tripTime').value),rate=tm?num('tripFuel')/tm:0;syncing=true;$('extraFuel').value=rate&&num('extraTime')?Math.round(num('extraTime')*rate):'';syncing=false;calc()});function applyHoldBMode(){let manual=holdBMode==='manual';$('gaTime').readOnly=overrideMode;$('holdATime').readOnly=overrideMode||manual;$('gaTime').classList.remove('computed-input');$('holdATime').classList.toggle('computed-input',manual);$('holdBTime').readOnly=overrideMode?true:!manual;$('holdBFuel').readOnly=true;$('holdBTime').classList.toggle('manual-input',manual&&!overrideMode);$('holdBTime').classList.toggle('computed-input',!manual||overrideMode);$('holdBFuel').classList.add('computed-input');$('autoBtn').checked=manual;$('noAltnBtn').checked=!manual;$('noAltnBtn').disabled=overrideMode;applyOverrideVisuals()}function changeRel(delta){
   const el=$('relValue');
   const current=Math.max(1,parseInt(String(el.value||'').replace(/\D/g,''),10)||1);
   const next=Math.max(1,current+delta);
@@ -1151,8 +1156,12 @@ function loadTestValues(){
   calc();
   saveState();
 }
-function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;document.querySelectorAll('.ref-ocr-new,.ref-ocr-old').forEach(x=>x.classList.remove('ref-ocr-new','ref-ocr-old'));document.querySelectorAll('input').forEach(x=>x.value='');
-  $('relValue').value='RLS 1';holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc()}
+function resetAll(){clearSavedState();overrideMode=false;ovrdRfSource=null;ovrdAddSource=null;document.querySelectorAll('.ref-ocr-new,.ref-ocr-old').forEach(x=>x.classList.remove('ref-ocr-new','ref-ocr-old'));document.querySelectorAll('input:not([type=checkbox])').forEach(x=>x.value='');
+  $('relValue').value='RLS 1';holdBMode='auto';applyHoldBMode();applyOverrideVisuals();calc();
+  if(window.setFuelSections)window.setFuelSections(['referenceBody']);
+  document.querySelectorAll('input:not([type=checkbox])').forEach(el=>{el.classList.remove('reset-flash');void el.offsetWidth;el.classList.add('reset-flash')});
+  window.scrollTo?.({top:0,behavior:'smooth'});
+}
 $('ovrdAddTime').addEventListener('input',()=>{
   if(!overrideMode || syncing)return;
   ovrdAddSource='time';
@@ -1242,6 +1251,14 @@ document.addEventListener('click',e=>{
     sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,!allExpanded));
     syncAllButton();
   });
+  window.setFuelSections=(openBodies)=>{
+    sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,openBodies.includes(bodyId)));
+    syncAllButton();
+  };
+  document.getElementById('briefingBtn').addEventListener('click',()=>{
+    window.setFuelSections(['overviewBody','massPerfBody']);
+    window.scrollTo?.({top:0,behavior:'smooth'});
+  });
   // Start with every main section collapsed; individual controls remain independent.
   sections.forEach(([buttonId,bodyId,title])=>setExpanded(buttonId,bodyId,title,false));
   syncAllButton();
@@ -1316,7 +1333,7 @@ function parse(text){
  const rowSegments=(line,label)=>{
   const patterns={taxi:/\bTAXI\s+(\d{1,6})\b/g,trip:/\bTRIP(?:\s+[A-Z]{3,5})?\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/g,
    minBlock:/\bMIN\s+BLOCK\s+(\d{2,6})\b/g,finalFuel:/\bFINAL\s+RES\s+(\d{2,6})\b/g,
-   altFuel:/\b(?:ALTN(?:\s+[A-Z]{3,5})?|NOALTN|NO\s+ALTN)\s+(\d{1,6})\b/g};
+   altFuel:/\b(NOALTN|NO\s+ALTN|ALTN(?:\s+[A-Z]{3,5})?)\s+(\d{1,6})\b/g};
   return [...line.matchAll(patterns[label])].map(m=>m.slice(1));
  };
  const extractPlan=(label)=>{
@@ -1340,7 +1357,8 @@ function parse(text){
  // Only an explicit NIL/NONE/zero alternate means 0 kg. NOALTN followed
  // by a numeric amount (e.g. NOALTN 1579) is a positive fuel requirement.
  const explicitZero=/\b(?:ALTN|NOALTN|NO\s+ALTN)\s+(?:NIL|NONE|0)\b/.test(altLine);
- const planAltValue=planAlt?planAlt[0]:(explicitZero&&!dualPlans?'0':'');
+ const planAltValue=planAlt?(/^(?:NOALTN|NO\s+ALTN)\b/.test(planAlt[0])?'0':planAlt[1]):(explicitZero&&!dualPlans?'0':'');
+ const noAltnSelected=Boolean(planAlt&&/^(?:NOALTN|NO\s+ALTN)\b/.test(planAlt[0]));
  const trip=find(basic,/^TRIP\s+\d/);
  const altn=find(basic,/^ALTN\b/);
  const tripMatch=trip.match(/^TRIP\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/);
@@ -1355,6 +1373,7 @@ function parse(text){
  minBlock:dualPlans?blockCandidates[selectedPlan][0]:number(find(basic,/^MIN\s+BLOCK\s+\d/),/^MIN\s+BLOCK\s+(\d{2,6})\b/),
  finalFuel:dualPlans?(chosen('finalFuel')?.[0]||''):number(find(basic,/^FINAL\s+RES\s+\d/),/^FINAL\s+RES\s+(\d{2,6})\b/),
  altFuel:dualPlans?planAltValue:(planAltValue||(/^ALTN\s+(?:NIL|NONE)\b/.test(altn)?'0':number(altn,/^ALTN(?:\s+[A-Z]{3,4})?\s+(\d{1,6})\b/))),
+ _noAltnDiagnostic:noAltnSelected?'NOALTN in ausgewählter Fuelberechnung: Kompensationsfuel '+planAlt[1]+' kg wird nicht als Alternate Fuel übernommen; ALTN FUEL = 0 kg.':'',
  _fuelPlanDiagnostic:dualPlans?'Fuelberechnung '+(selectedPlan===0?'links':'rechts')+' gewählt: MIN BLOCK '+blockCandidates[selectedPlan][0]+' kg > '+blockCandidates[1-selectedPlan][0]+' kg.':'Nur eine Fuelberechnung erkannt.',
  relValue:number(header,/\bRLS\s*[:.\-]?\s*(\d{1,3})\b/)
  };
@@ -1594,7 +1613,7 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
    const check=values._ezfwConflict
      ? 'WARNUNG: EZFW aus OCR = '+values._ezfwOcr+'; TOW - TOF = '+values._ezfwCalculated+' kg. Der rechnerische Wert wird mit orange ? zur Kontrolle vorgeschlagen.'
      : 'EZFW-Prüfung: '+(values._ezfwCalculated===null?'TOW/TOF nicht zuverlässig erkannt.':values._ezfwOcr?'OCR und TOW-TOF: '+(Number(values._ezfwOcr)===values._ezfwCalculated?'stimmen überein.':'abweichend oder unvollständig.'):'EZFW nicht direkt erkannt.');
-   $('ezfwRaw').value='FUEL PLAN CHECK:\n'+values._fuelPlanDiagnostic+'\n\nEZFW CHECK:\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
+   $('ezfwRaw').value='FUEL PLAN CHECK:\n'+values._fuelPlanDiagnostic+'\n'+(values._noAltnDiagnostic||'')+'\n\nEZFW CHECK:\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
    showReview(values);
    const confidence=Math.round(result.data.confidence||0);
    if(confidence<80){$('ofpRows').querySelectorAll('tr').forEach(tr=>{const inp=tr.querySelector('input');if(inp&&inp.value.trim())setOFPStatus(tr.lastElementChild,'problematic');});}
