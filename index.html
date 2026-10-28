@@ -726,7 +726,7 @@
 .ofp-review-scroll .ofp-table td:nth-child(4) .ofp-new-unit{text-align:left;width:22px}
 .ofp-new-unit{font-size:12px;color:#c3ced9;white-space:nowrap}
 @media(max-width:600px){.ofp-review-scroll .ofp-table{min-width:660px}.ofp-review-scroll .ofp-table td,.ofp-review-scroll .ofp-table th{padding:5px 4px}.ofp-review-scroll .ofp-table td:nth-child(3){display:table-cell}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.1 · Last update: 21.10.2026</div></div><div class="top-actions">
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.2 · Last update: 28.10.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -860,7 +860,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.32.1'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.32.2'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
@@ -1308,6 +1308,39 @@ function parse(text){
  const tof=weightValue('TOF'),tow=weightValue('TOW');
  const inferredZfw=tof!==null&&tow!==null?tow-tof:null;
  const weightConflict=Boolean(rawZfw&&inferredZfw!==null&&inferredZfw>=100000&&inferredZfw<=239950&&Number(rawZfw)!==inferredZfw);
+ // Fuel plans are separate columns. Select the plan with the larger MIN BLOCK,
+ // never mix values from the two plans. OCR may concatenate both columns per line.
+ const fuelStart=lines.findIndex(x=>/^TAXI\s+\d/.test(x) && lines.slice(lines.indexOf(x)+1,lines.indexOf(x)+12).some(y=>/\bMIN\s+BLOCK\b/.test(y)));
+ const fuelEnd=lines.findIndex((x,i)=>i>fuelStart && /^(?:FUEL COST|OPTIONAL DEST ALTN|NEXT LEG|CMD)\b/.test(x));
+ const fuelLines=fuelStart>=0?lines.slice(fuelStart,fuelEnd<0?lines.length:fuelEnd):[];
+ const rowSegments=(line,label)=>{
+  const patterns={taxi:/\bTAXI\s+(\d{1,6})\b/g,trip:/\bTRIP(?:\s+[A-Z]{3,5})?\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/g,
+   minBlock:/\bMIN\s+BLOCK\s+(\d{2,6})\b/g,finalFuel:/\bFINAL\s+RES\s+(\d{2,6})\b/g,
+   altFuel:/\b(?:ALTN(?:\s+[A-Z]{3,5})?|NOALTN|NO\s+ALTN)\s+(\d{1,6})\b/g};
+  return [...line.matchAll(patterns[label])].map(m=>m.slice(1));
+ };
+ const extractPlan=(label)=>{
+  const line=fuelLines.find(x=>rowSegments(x,label).length>0);
+  return line?rowSegments(line,label):[];
+ };
+ const blockCandidates=extractPlan('minBlock');
+ const dualPlans=blockCandidates.length>=2;
+ const selectedPlan=dualPlans?(Number(blockCandidates[0][0])>=Number(blockCandidates[1][0])?0:1):0;
+ const chosen=(label)=>{
+  const matches=extractPlan(label);
+  // If two plans exist, a single OCR value is ambiguous: do not borrow it
+  // from the other plan. Except when the two plans explicitly share TAXI/FR
+  // and only one value is visible; leave blank for review instead.
+  if(dualPlans&&matches.length<2)return null;
+  return matches[selectedPlan]||null;
+ };
+ const planTrip=chosen('trip');
+ const planAlt=chosen('altFuel');
+ const altLine=fuelLines.find(x=>/\b(?:ALTN|NOALTN|NO\s+ALTN)\b/.test(x))||'';
+ // Only an explicit NIL/NONE/zero alternate means 0 kg. NOALTN followed
+ // by a numeric amount (e.g. NOALTN 1579) is a positive fuel requirement.
+ const explicitZero=/\b(?:ALTN|NOALTN|NO\s+ALTN)\s+(?:NIL|NONE|0)\b/.test(altLine);
+ const planAltValue=planAlt?planAlt[0]:(explicitZero&&!dualPlans?'0':'');
  const trip=find(basic,/^TRIP\s+\d/);
  const altn=find(basic,/^ALTN\b/);
  const tripMatch=trip.match(/^TRIP\s+(\d{2,6})\s+(\d{1,2})[.:](\d{2})\b/);
@@ -1316,12 +1349,13 @@ function parse(text){
  _ezfwConflict:weightConflict,
  _ezfwOcr:rawZfw,
  _ezfwCalculated:inferredZfw,
- taxi:number(find(basic,/^TAXI\s+\d/),/^TAXI\s+(\d{1,6})\b/),
- tripFuel:tripMatch?.[1]||'',
- tripTime:tripMatch?tripMatch[2].padStart(2,'0')+':'+tripMatch[3]:'',
- minBlock:number(find(basic,/^MIN\s+BLOCK\s+\d/),/^MIN\s+BLOCK\s+(\d{2,6})\b/),
- finalFuel:number(find(basic,/^FINAL\s+RES\s+\d/),/^FINAL\s+RES\s+(\d{2,6})\b/),
- altFuel: /^ALTN\s+(?:NIL|NONE)\b/.test(altn)?'0':number(altn,/^ALTN(?:\s+[A-Z]{3,4})?\s+(\d{1,6})\b/),
+ taxi:dualPlans?(chosen('taxi')?.[0]||''):number(find(basic,/^TAXI\s+\d/),/^TAXI\s+(\d{1,6})\b/),
+ tripFuel:dualPlans?(planTrip?.[0]||''):(tripMatch?.[1]||''),
+ tripTime:dualPlans?(planTrip?planTrip[1].padStart(2,'0')+':'+planTrip[2]:''):(tripMatch?tripMatch[2].padStart(2,'0')+':'+tripMatch[3]:''),
+ minBlock:dualPlans?blockCandidates[selectedPlan][0]:number(find(basic,/^MIN\s+BLOCK\s+\d/),/^MIN\s+BLOCK\s+(\d{2,6})\b/),
+ finalFuel:dualPlans?(chosen('finalFuel')?.[0]||''):number(find(basic,/^FINAL\s+RES\s+\d/),/^FINAL\s+RES\s+(\d{2,6})\b/),
+ altFuel:dualPlans?planAltValue:(planAltValue||(/^ALTN\s+(?:NIL|NONE)\b/.test(altn)?'0':number(altn,/^ALTN(?:\s+[A-Z]{3,4})?\s+(\d{1,6})\b/))),
+ _fuelPlanDiagnostic:dualPlans?'Fuelberechnung '+(selectedPlan===0?'links':'rechts')+' gewählt: MIN BLOCK '+blockCandidates[selectedPlan][0]+' kg > '+blockCandidates[1-selectedPlan][0]+' kg.':'Nur eine Fuelberechnung erkannt.',
  relValue:number(header,/\bRLS\s*[:.\-]?\s*(\d{1,3})\b/)
  };
 }
@@ -1560,7 +1594,7 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
    const check=values._ezfwConflict
      ? 'WARNUNG: EZFW aus OCR = '+values._ezfwOcr+'; TOW - TOF = '+values._ezfwCalculated+' kg. Der rechnerische Wert wird mit orange ? zur Kontrolle vorgeschlagen.'
      : 'EZFW-Prüfung: '+(values._ezfwCalculated===null?'TOW/TOF nicht zuverlässig erkannt.':values._ezfwOcr?'OCR und TOW-TOF: '+(Number(values._ezfwOcr)===values._ezfwCalculated?'stimmen überein.':'abweichend oder unvollständig.'):'EZFW nicht direkt erkannt.');
-   $('ezfwRaw').value='EZFW CHECK:\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
+   $('ezfwRaw').value='FUEL PLAN CHECK:\n'+values._fuelPlanDiagnostic+'\n\nEZFW CHECK:\n'+check+'\n\nFULL PAGE (matching lines):\n'+(relevant(rawText)||'[keine passenden Zeilen]')+'\n\nCROP OCR (matching lines):\n'+(relevant(ezfwRetryText)||'[kein zweiter Durchlauf]')+'\n\nHEADER OCR (RLS retry):\n'+(rlsRetryText||'[kein zweiter Durchlauf]')+'\n\nFULL PAGE OCR (complete):\n'+rawText+'\n\nCROP OCR (complete, if run):\n'+ezfwRetryText;
    showReview(values);
    const confidence=Math.round(result.data.confidence||0);
    if(confidence<80){$('ofpRows').querySelectorAll('tr').forEach(tr=>{const inp=tr.querySelector('input');if(inp&&inp.value.trim())setOFPStatus(tr.lastElementChild,'problematic');});}
