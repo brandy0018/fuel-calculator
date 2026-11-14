@@ -731,7 +731,11 @@
 @keyframes resetFieldPulse{0%{box-shadow:0 0 0 0 rgba(140,186,214,0)}30%{box-shadow:0 0 0 3px rgba(140,186,214,.45);background:#d1e7f3}100%{box-shadow:0 0 0 0 rgba(140,186,214,0)}}
 input.reset-flash:not([readonly]){animation:resetFieldPulse .65s ease-out}
 @media(prefers-reduced-motion:reduce){input.reset-flash:not([readonly]){animation:none}}
-</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.3 · Last update: 28.10.2026</div></div><div class="top-actions">
+/* Clipboard import: keep the existing file picker usable on narrow screens. */
+.ofp-import-source{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ofp-import-source input[type=file]{flex:1 1 185px;min-width:0}
+.ofp-import-source button{flex:0 0 auto}
+</style></head><body><div class="wrap"><div class="top"><div><h1>Fuel Calculator</h1><div class="muted">© Stephan Brandstätter (BTEP) - FO B777</div><div class="muted app-meta">Prototype · Version 1.32.4 · Last update: 14.11.2026</div></div><div class="top-actions">
   <div class="rel-control">
     <button class="btn rel-btn" type="button" onclick="changeRel(-1)">&lt;</button>
     <input id="relValue" class="rel-input" type="text" value="RLS 1" readonly aria-label="Release">
@@ -841,7 +845,7 @@ input.reset-flash:not([readonly]){animation:resetFieldPulse .65s ease-out}
 <div id="ofpModal" class="ofp-modal" hidden role="dialog" aria-modal="true" aria-label="OFP Import">
  <div class="ofp-dialog"><h2>📷 OFP Import · Prototype</h2>
  
- <input id="ofpFile" type="file" accept="image/*" aria-label="OFP Foto aus Mediathek, Dateien oder Kamera auswählen"><div id="ofpViewer" hidden>
+ <div class="ofp-import-source"><input id="ofpFile" type="file" accept="image/*" aria-label="OFP Foto aus Mediathek, Dateien oder Kamera auswählen"><button type="button" class="btn" id="ofpPasteBtn" title="OFP-Screenshot aus der Zwischenablage importieren">📋 Einfügen</button></div><div id="ofpViewer" hidden>
   <div class="ofp-zoom-toolbar"><button type="button" id="ofpZoomOut" aria-label="Verkleinern">−</button><span id="ofpZoomLabel">100%</span><button type="button" id="ofpZoomIn" aria-label="Vergrößern">+</button><button type="button" id="ofpZoomReset">Einpassen</button></div>
   <div id="ofpStage" aria-label="OFP Bild: mit einem Finger verschieben, mit zwei Fingern zoomen"><img id="ofpPreview" alt="Ausgewähltes OFP" draggable="false"></div>
   
@@ -865,7 +869,7 @@ function parseWeight(value){
   const normalized=raw.replace(/[.,](?=\d{3}(?:\D|$))/g,'').replace(',','.');
   return parseFloat(normalized)||0;
 }
-const APP_VERSION='1.32.3'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
+const APP_VERSION='1.32.4'; const STORAGE_KEY='fuelcalc-state-v1.31.5'; // Stable storage key: preserve entered values across app updates.
 const persistedInputIds=[
   'minBlock','tripTime','finalFuel','altFuel','ezfw','rtow',
   'gaTime','holdATime','holdBTime',
@@ -1545,7 +1549,10 @@ function loadOcrEngine(){
  return ocrEnginePromise;
 }
 $('ezfwCopy').onclick=()=>{const t=$('ezfwRaw').value;if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>{$('ezfwRaw').select();});else $('ezfwRaw').select();};
-$('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;const token=++selectionToken;clearOFPResult();
+$('ofpFile').onchange=e=>{const file=e.target.files?.[0];if(file)importOFPImage(file);};
+async function importOFPImage(file){
+ if(!file||!file.type.startsWith('image/')){$('ofpStatus').textContent='Die Zwischenablage enthält kein unterstütztes Bild.';return;}
+ const token=++selectionToken;clearOFPResult();
  if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);$('ofpViewer').hidden=false;imgW=imgH=0;preview.src=objectUrl;$('ofpReview').hidden=true;
  try{
   $('ofpStatus').textContent='Lokale OCR-Engine wird geladen …';
@@ -1621,7 +1628,31 @@ $('ofpFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;c
   }finally{await worker.terminate();}
  }catch(err){if(token!==selectionToken)return;clearReviewOnly();$('ofpStatus').textContent='OCR nicht möglich: '+String(err.message||err)+'. Prüfe die Internetverbindung beim ersten Laden.';}
 
-};
+}
+
+// Clipboard API requires a secure context and a user gesture. iOS Safari may
+// instead offer a native Paste action; the paste event uses the same OCR path.
+async function readClipboardOFP(){
+ $('ofpModal').hidden=false;
+ if(!navigator.clipboard?.read){$('ofpStatus').textContent='Direktes Lesen der Zwischenablage ist hier nicht verfügbar. Versuche Einfügen über das iOS-Menü oder wähle das Bild aus der Mediathek.';return;}
+ try{
+  const items=await navigator.clipboard.read();
+  for(const item of items){
+   const type=item.types.find(type=>type.startsWith('image/'));
+   if(type){const blob=await item.getType(type);const file=new File([blob],'OFP-Zwischenablage.'+(type.split('/')[1]||'png'),{type});await importOFPImage(file);return;}
+  }
+  $('ofpStatus').textContent='Kein Bild in der Zwischenablage gefunden. Bitte einen OFP-Screenshot kopieren.';
+ }catch(err){$('ofpStatus').textContent=err?.name==='NotAllowedError'?'Zugriff auf die Zwischenablage nicht erlaubt. Bitte die Browserabfrage bestätigen oder das Bild über die Mediathek auswählen.':'Einfügen nicht möglich: '+String(err?.message||err);}
+}
+$('ofpPasteBtn').addEventListener('click',readClipboardOFP);
+document.addEventListener('paste',e=>{
+ if($('ofpModal').hidden)return;
+ const item=[...(e.clipboardData?.items||[])].find(item=>item.type.startsWith('image/'));
+ if(!item)return;
+ const file=item.getAsFile();if(!file)return;
+ e.preventDefault();importOFPImage(file);
+});
+
 $('ofpApply').onclick=()=>{if(!reviewReady){$('ofpStatus').textContent='Keine Ergebnisse des ausgewählten OFP vorhanden.';return;}
  const rows=[...$('ofpRows').querySelectorAll('input')];
  for(const input of rows){const id=input.dataset.id,raw=id==='relValue'||id==='tripTime'?input.value.trim():ofpDigits(input.value.trim()),target=$(id);if(!target)continue;
